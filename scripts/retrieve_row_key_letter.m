@@ -8,9 +8,12 @@ function [result]=retrieve_row_key_letter(letters, anatomicaltab)
 %       anatomicaltab is the tsv table we pull from with the table
 %   Usage: [row]=retrieve_row_key_letters('cing', loc_info)
 %   
-
+if letters=='pall'
+    result=anatomicaltab(1:end-22, 1);
+else 
     mask=contains(anatomicaltab.Destrieux_label_text, letters);
     result= anatomicaltab(mask, 1);
     %result=table2array(result);
+end
 end
     
