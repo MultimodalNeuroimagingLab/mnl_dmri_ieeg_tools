@@ -14,8 +14,9 @@ function list=retrieve_row_key_letter_v2(table, alpha_cell)
 %   create AA1-AA12 which would give false locations to the plotter). 
 %   
 
-unique_alphas=unique(table.name);
-unique_alpha_cell=unique(alpha_cell);
+%% Sorting
+unique_alphas=unique(table.name); %needed?
+unique_alpha_cell=unique(alpha_cell); %needed?
 unique_alpha_cell=table2cell(unique_alpha_cell);
 processed_alphas={};
 
@@ -24,7 +25,7 @@ for ii=1:size(unique_alpha_cell, 1)
     alpha=unique_alpha_cell{ii};
     alpha=regexprep(alpha, '[\d"]', ''); % nice tool to use in this case
 
-    if ismember(alpha, processed_alphas)
+    if ismember(alpha, processed_alphas) %Check for prev, if yes next iter
         continue
     end
 

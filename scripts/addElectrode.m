@@ -1,4 +1,4 @@
-function addElectrode(elecmatrix, elecsize, color, fitspline)
+function addElectrode(elecmatrix, elecsize, color, fitspline, a)
 
 %   Jordan Bilderbeek Jun 8 2023
 %
@@ -7,7 +7,8 @@ function addElectrode(elecmatrix, elecsize, color, fitspline)
 %       elecsize is the size of electrodes
 %   
 %   Code will fit a spline between the x,y,z coordinates and plot spheres with a lead extending 
-%
+%   If we use the render_dbs_lead function we dont need to fit the spline
+%   (set as 0)
 
 %% Spline Fitting
 coordinates=sortrows(elecmatrix, 3);
@@ -27,20 +28,12 @@ end
 %Radius of sphere
 r=elecsize;
 
-if exist(color, 'var')
-    electrodecolor=color;
-else
-    electrodecolor='blue';
-end
-
 %Plotting the sphere
 for ii=1:size(coordinates, 1)
     [x,y,z]=sphere;
-    surf(x*r+coordinates(ii, 1), y*r+coordinates(ii,2), z*r+coordinates(ii, 3), 'FaceColor', electrodecolor, 'EdgeColor', 'none');
-    alpha(.3);
+    surf(x*r+coordinates(ii, 1), y*r+coordinates(ii,2), z*r+coordinates(ii, 3), 'FaceColor', color, 'EdgeColor', 'none');
+    alpha(a);
 end
-
-hold off;
 xlabel('x'), ylabel('y'), zlabel('z');
 
 end
