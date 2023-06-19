@@ -1,27 +1,35 @@
-function render_dbs_lead(electrode_positions, lead_size, ~)
+function render_seeg_lead(electrode_positions, lead_size, ~)
 
-%   Jordan Bilderbeek June 19 2023
-
-%   Built from render_seeg_lead. We add an extrapolation via the spline
-%   fitting in order to add an extension that will exit the skull. As we 
-%   currently only plot the electrodes this is needed for DBS cases.
+%   Jordan Bilderbeek June 9 2023
+%
+%   Inputs: electrode_positions, lead_size, extension_height
+%       electrode_positions is a N by 3 matrix [x,y,z] of the electrode
+%       coordinates. Can be retrieved from locs_info (tsv with electrode
+%       positions)
+%       lead_size is position between electrodes
+%       extension_height is the length for the extension portion of the
+%       lead that will extend out of the brain
+%   Usage: render_dbs_lead(elecmatrix(ismember(loc_info.name, els_plot'),
+%   :), 2, 10)
+%
+%   Where elecmatrix is the entire matrix of electrode position and
+%   els_plot is the name of the electrodes we are interested in. Generally,
+%   because we are fitting a spline and plotting the lead, we are looking 
+%   for a continued list of electrodes ie LA1, LA2...LAn but we dont want
+%   to input multiple electrodes because then the spline and render will be
+%   all over the place. 
+%  
 
 %% Initialize
 lead_radius=1; % in mm
 num_points=1000; % For spline
 
-%% Fit Spline
+%% Fit the spline
+
 spline_fit=cscvn(electrode_positions'); 
 %If we want to make a longer lead a function like cscvn may cause problems 
 spline_points=fnplt(spline_fit, num_points);
 
-end_derivative=fnder(spline_fit);
-end_values=ppval(end_derivative, spline_fit.breaks([1 end]));
-
-extrap_dist=30;
-end_points=ppval(spline_fit, spline_fit.breaks([1 end]));
-extrap_points=end_points + extrap_dist * end_values;
-spline_points=[spline_points, extrap_points(:, 1)];
 
 %% Create lead
 hold on;
@@ -52,7 +60,7 @@ for ii=1:size(spline_points, 2)-1
     theta=acos(dot([0 0 -1], dir));
     R=axisAngleToRotMat(ax, theta); %create orthonormal rotation matrix
     
-    [X, Y, Z]=cylinder([0 lead_radius], 50);
+    [X, Y, Z]=cylinder([0 lead_radius]);
     Z=Z*len;
         for jj=1:numel(X)
             vec=R * [X(jj) Y(jj) Z(jj)]';
@@ -81,7 +89,7 @@ dir=dir/norm(dir);
 
 ax=cross([0 0 -1], dir);
 ax=ax/norm(ax);
-theta=acos(dot([0 0 -1], dir)); % Where lines 84-85 will adjust the direction and angle
+theta=acos(dot([0 0 -1], dir)); % Where lines will adjust the direction and angle
 R=axisAngleToRotMat(ax, theta); %create orthonormal rotation matrix
 
 [X,Y,Z]=sphere();
@@ -102,5 +110,11 @@ end
 
 tip=surf(X+p2(1), Y+p2(2), Z+p2(3));
 set(tip, 'FaceColor', 'k', 'EdgeColor', 'none');
+
 end
+
+    
+
+
+
 
