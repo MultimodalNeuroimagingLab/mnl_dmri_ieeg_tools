@@ -20,8 +20,7 @@ clear all;
 
 num_dbs_leads=4;
 num_electrodes_per_lead=4;
-lead_size=1.5; 
-elecmatrix=load('/Users/M255591/Desktop/electrodes_loc1.mat');
+lead_size=1; 
 
 setMyMatlabPaths;
 addpath(genpath(pwd)); 
