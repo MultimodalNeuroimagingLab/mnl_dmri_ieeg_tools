@@ -34,7 +34,7 @@ loc_info = readtable(electrodes_tsv,'FileType','text','Delimiter','\t','TreatAsE
 %Change '' text to search for 4 character ROI based on destriux label. Ex: 'cing' for
 %cingulum (must exist as a tag within the table). Can alternatively provide
 %'pall' to plot all electrodes/leads.
-row=retrieve_row_key_letter('ippo', loc_info); 
+row=retrieve_row_key_letter('cing', loc_info); 
 elecmatrix = [loc_info.x loc_info.y loc_info.z];
 
 lead=1; %Determine if we want to plot the whole lead or just electrodes. If lead=1 then whole lead.
@@ -169,7 +169,7 @@ if lead==1
         disp(['Lead ' num2str(ii) ' plotted in ' num2str(toc) ' seconds']); 
     end
        
-else
+%else
     disp('Plotting each electrode individually')
     
     %If on the off chance the destrieux label is not good enough for

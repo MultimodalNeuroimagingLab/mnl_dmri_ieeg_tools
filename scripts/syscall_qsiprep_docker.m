@@ -3,7 +3,7 @@
 % The purpose of the script is to create a system call to the terminal to run qsiprep. 
 % The general format of the call is as follows:
 
-%  docker run qsiprep [-h] [--version] [--skip_bids_validation]
+%  qsiprep-docker [-h] [--version] [--skip_bids_validation]
 %                [--participant_label PARTICIPANT_LABEL [PARTICIPANT_LABEL ...]]
 %                [--acquisition_type ACQUISITION_TYPE]
 %                [--bids-database-dir BIDS_DATABASE_DIR]
@@ -48,13 +48,14 @@
 [my_subject_labels, bids_path]=dmri_subject_list();
 
 %Change my_subject_labels{#} to those preset in function. 
-sub_label=my_subject_labels{3};
+sub_label=my_subject_labels{5};
 
 %Path of the bids directory
 bids_dir=bids_path;
 
 %Path for output file
 output_dir=[bids_path '/derivatives'];
+tmpdir=[output_dir '/temp_qsi'];
 
 %Freesurfer license
 fs_license='/Users/M255591/license.txt';
@@ -62,9 +63,15 @@ fs_license='/Users/M255591/license.txt';
 %Output resolution
 output_resolution=1.25; %mm
 
-%Create call
-call=[ 'docker run pennbbl/qsiprep:0.16.0RC3 ' bids_dir ' ' output_dir ' participant --participant_label ' sub_label ' --fs-license-file ' fs_license ' --output-resolution ' num2str(output_resolution) ' --skip_bids_validation --write-graph -vv' ];
-%clipboard('copy', call);
+call= ['qsiprep-docker  \ ' ...
+bids_dir ' \ ' ...
+output_dir ' \ ' ...
+'participant --participant_label' sub_label ' \ ' ...
+'--fs-license-file ' fs_license ' \ ' ...
+'--output-resolution' num2str(output_resolution) ' \ ' ...
+'--write-graph \ ' ...
+'--work-dir ' tmpdir ' \ ' ...
+'-vv'];
 
 stat=system(call);
 if stat~=0

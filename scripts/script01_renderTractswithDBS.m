@@ -31,25 +31,24 @@ sub_label = my_subject_labels{1};
 tic;
 
 %Change '' to use different tracks from DSI studio
-all_trks = {'Cingulum_Frontal_Parahippocampal_L',...
-    'Fornix_L',...
-    'Cingulum_Parahippocampal_Parietal_L',...
-    'Cingulum_Parahippocampal_L',...
-    'Cingulum_Frontal_Parietal_L',...
-    'Cingulum_Parolfactory_L'};
+all_trks = {'Uncinate_Fasciculus_R',...
+    'Cingulum_Parahippocampal_R',...
+    'Cingulum_Frontal_Parietal_R'};
 
 %Load DWI file
-dwi_file = fullfile(bids_path, ['sub-' sub_label],'ses-compact3T01','dwi',['sub-' sub_label '_ses-compact3T01_acq-diadem_space-T1w_desc-preproc_dwi.nii.gz']);
+dwi_file = fullfile(bids_path, 'BIDS_subjectsRaw', 'derivatives', 'qsiprep', ['sub-' sub_label],'ses-mri01','dwi',['sub-' sub_label '_ses-mri01_rec-none_run-01_space-T1w_desc-preproc_dwi.nii.gz']);
+%dwi_file = fullfile(bids_path, 'derivatives', 'qsiprep', ['sub-' sub_label],'ses-mri01','dwi',['sub-' sub_label '_ses-mri01_acq-diadem_space-T1w_desc-preproc_dwi.nii.gz']);
+
 ni_dwi = niftiRead(dwi_file);
 fg_fromtrk = [];
 
 for ss = 1:length(all_trks)
     trk_name = all_trks{ss};
-    trk_file = fullfile(bids_path,['sub-' sub_label],'dsi_studio',[trk_name '.trk']);
+    trk_file = fullfile(bids_path,'BIDS_subjectsRaw', 'derivatives','dsistudio',['sub-' sub_label], [trk_name '.trk']);
 
     if ~exist(trk_file, 'file')
         try
-            trk_file_zip = fullfile(bids_path,['sub-' sub_label],'dsi_studio',[trk_name '.trk.gz']);
+            trk_file_zip = fullfile(bids_path,['sub-' sub_label],'dsistudio',[trk_name '.trk.gz']);
             gunzip(trk_file_zip);
         catch
             warningMessage = sprintf('Warning: Zipped track file does not exist:\n%s', trk_file_zip);
@@ -91,21 +90,21 @@ disp(['Tracks loaded in ' num2str(toc) ' seconds'])
 %% Load T1, gifti
 tic;
  
-t1_name = fullfile(bids_path,['sub-' sub_label],'anat',['sub-' sub_label '_desc-preproc_T1w.nii.gz']);
+t1_name = fullfile(bids_path,'BIDS_subjectsRaw', 'derivatives', 'qsiprep', ['sub-' sub_label],'anat',['sub-' sub_label '_desc-preproc_T1w.nii.gz']);
 t1 = niftiRead(t1_name);
 brighten_T1 = .5; % 1 for nothing, .5 for everything above 50% of maximum is white
 t1.data(t1.data>brighten_T1*max(t1.data(:))) = brighten_T1*max(t1.data(:));
 t1.sto_xyz = t1.qto_xyz;
 t1.sto_ijk = t1.qto_ijk;
 
-g = gifti(fullfile(bids_path,['sub-' sub_label],'pial_desc-qsiprep.R.surf.gii')); %Will need to do a surface of both sides
+g = gifti(fullfile(bids_path,'BIDS_subjectsRaw', 'derivatives', 'qsiprep', ['sub-' sub_label],'pial_desc-qsiprep.L.surf.gii')); %Will need to do a surface of both sides
 
 disp(['Loaded T1, created gifti in ' num2str(toc) ' seconds'])
 
 %% Glass brain render
 tic
 
-figure();
+%figure();
 h = ieeg_RenderGifti(g); 
 hold on
 
@@ -121,13 +120,14 @@ disp(['Created track render in ' num2str(toc) ' seconds'])
 
 
 %% Adding electrodes
+load(fullfile(bids_path,'sourcedata',['sub-' sub_label],'positionsBrinkman', 'electrodes_loc1.mat')); %Will need to do a surface of both sides
 
-init=1;
-fin=num_electrodes_per_lead;
+init=length(elecmatrix)/2+1;
+fin=init+num_electrodes_per_lead-1;
 step=num_electrodes_per_lead;
 
 for ii=1:num_dbs_leads/2
-    render_dbs_lead(elecmatrix.elecmatrix(init:fin, :), lead_size)
+    render_dbs_lead(elecmatrix(init:fin, :), lead_size)
     init=init+step;
     fin=fin+step;
 end
@@ -137,7 +137,7 @@ h.DiffuseStrength=.8;
 h.FaceAlpha = 0.2;
 light('Position', [270 30 0])
 
-%% Now for the right side ... load right tracks
+%% Now for the left side ... load right tracks
 
 %Change '' to use different tracks from DSI studio
 all_trks = {'Cingulum_Frontal_Parahippocampal_R',...
@@ -217,7 +217,7 @@ init=1;
 fin=init+num_electrodes_per_lead;
 step=num_electrodes_per_lead;
 
-for ii=num_dbs_leads/2 + 1:num_dbs_leads
+for ii=1:num_dbs_leads/2
     render_dbs_lead(elecmatrix.elecmatrix(init:fin, :), lead_size)
     init=init+step;
     fin=fin+step;

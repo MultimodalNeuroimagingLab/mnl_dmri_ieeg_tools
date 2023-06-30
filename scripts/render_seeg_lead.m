@@ -22,13 +22,17 @@ function render_seeg_lead(electrode_positions, lead_size, ~)
 
 %% Initialize
 lead_radius=1; % in mm
-num_points=1000; % For spline
 
 %% Fit the spline
 
 spline_fit=cscvn(electrode_positions'); 
 %If we want to make a longer lead a function like cscvn may cause problems 
-spline_points=fnplt(spline_fit, num_points);
+spline_points=fnplt(spline_fit);
+
+for i=1:5 %essentially upsampling the spline
+    spline_fit=cscvn(spline_points);
+    spline_points=fnplt(spline_fit);
+end
 
 
 %% Create lead

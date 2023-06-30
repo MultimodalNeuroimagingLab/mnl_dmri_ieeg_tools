@@ -8,20 +8,29 @@ function render_dbs_lead(electrode_positions, lead_size, ~)
 
 %% Initialize
 lead_radius=1; % in mm
-num_points=1000; % For spline
+%num_points=1000; % For spline
 
 %% Fit Spline
-spline_fit=cscvn(electrode_positions'); 
+%spline_fit=cscvn(electrode_positions'); 
 %If we want to make a longer lead a function like cscvn may cause problems 
-spline_points=fnplt(spline_fit, num_points);
+%spline_points=fnplt(spline_fit);
 
-end_derivative=fnder(spline_fit);
-end_values=ppval(end_derivative, spline_fit.breaks([1 end]));
+spline_points=linreg3(electrode_positions)
 
-extrap_dist=30;
-end_points=ppval(spline_fit, spline_fit.breaks([1 end]));
-extrap_points=end_points + extrap_dist * end_values;
-spline_points=[spline_points, extrap_points(:, 1)];
+%Now that we have the spline points we can extrapolate the lead based on the slope from the spline. 
+%We want the extrapolation to be 50mm long and only emerge from one side of the spline (the side that is closest to the top of the skull (positive z))
+%We can do this by finding the slope of the spline at the last point and then adding 50mm along the trajectory (create an xyz point) and then use the
+%slope to create a line that is 50mm long. We can then add this line to the spline points and plot the lead. 
+
+%Find slope of spline at last point in the positive z direction
+slope=spline_fit.coefs(end, 3)*1*spline_fit.pieces*spline_fit.order; %3 is the scaling factor for the spline
+
+%Create a point that is 5mm along the slope
+extrap_point=spline_points(:, end) + slope*1;
+
+%Add the extrap point to the spline points
+spline_points=[spline_points, extrap_point];
+
 
 %% Create lead
 hold on;

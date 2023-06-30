@@ -43,6 +43,12 @@ init=1;
 fin=num_electrodes_per_lead;
 step=num_electrodes_per_lead;
 
+% We divide the num_dbs_leads by 2 to only iterate through one side (as we
+% only have L/R pial surfaces created by freesurfer).
+
+%init and fin ensure that we setp through and grab the right electrode
+%positions from the matrix
+
 for ii=1:num_dbs_leads/2
     render_dbs_lead(elecmatrix(init:fin, :), lead_size)
     init=init+step;
