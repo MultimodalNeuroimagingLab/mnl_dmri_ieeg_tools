@@ -49,7 +49,7 @@ hold on;
     end
 
 encapsulation_radius=lead_radius + .2; %.2mm larger than normal
-encapsulation_color=[.3 .7 .3];
+encapsulation_color=[.725 .725 .768];
 encapsulation_transparency = .1;
 
 for ii=1:size(spline_points, 2)-1
