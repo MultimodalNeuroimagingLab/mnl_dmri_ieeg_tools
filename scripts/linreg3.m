@@ -10,6 +10,8 @@ function [X_end] = linreg3(X)
 %   the locations based on the CT positions; but sometimes the selection
 %   makes the X Y Z coordinates offset in a direction. For visualization we
 %   find the line of bset fit (assume there to be no curve in the DBS probe). 
+
+%% linreg3
 tic
 N=size(X, 2);
 
@@ -32,7 +34,7 @@ Xa=(x_min-0.05*dx)*R(:,1)' + X_ave;
 Xb=(x_max+0.05*dx)*R(:,1)' + X_ave;
 X_end=[Xa;Xb];
 
-subplot(2,1,2)
+subplot(2,1,1)
 plot3(X_end(:,1),X_end(:,2),X_end(:,3),'-r','LineWidth',3) % best fit line 
 hold on
 plot3(X(:,1),X(:,2),X(:,3),'.k','MarkerSize',13)           % electrode positions

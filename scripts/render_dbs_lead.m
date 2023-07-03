@@ -15,24 +15,22 @@ lead_radius=1; % in mm
 %If we want to make a longer lead a function like cscvn may cause problems 
 %spline_points=fnplt(spline_fit);
 
-spline_points=linreg3(electrode_positions)
+spline_points=linreg3(electrode_positions);
 
-%Now that we have the spline points we can extrapolate the lead based on the slope from the spline. 
-%We want the extrapolation to be 50mm long and only emerge from one side of the spline (the side that is closest to the top of the skull (positive z))
-%We can do this by finding the slope of the spline at the last point and then adding 50mm along the trajectory (create an xyz point) and then use the
-%slope to create a line that is 50mm long. We can then add this line to the spline points and plot the lead. 
+p1=spline_points(1,:);
+p2=spline_points(2,:);
+lead_direction=p2-p1;
+lead_direction=lead_direction/norm(lead_direction);
 
-%Find slope of spline at last point in the positive z direction
-slope=spline_fit.coefs(end, 3)*1*spline_fit.pieces*spline_fit.order; %3 is the scaling factor for the spline
+extrap_length=10;
+extrap_point=spline_points(end,:) + extrap_length * lead_direction;
+spline_points=[spline_points; extrap_point];
 
-%Create a point that is 5mm along the slope
-extrap_point=spline_points(:, end) + slope*1;
-
-%Add the extrap point to the spline points
-spline_points=[spline_points, extrap_point];
-
+upsample_factor=1000;
+spline_points=upsample_points(spline_points, upsample_factor);
 
 %% Create lead
+figure()
 hold on;
 
 % axisAngleToRotMat has similar functionality to axang2rotm in Navigation, Robotics or UAV toolbox
