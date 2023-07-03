@@ -48,6 +48,10 @@ hold on;
             z*x*omct-y * st, z*y*omct+x * st, ct + z^2*omct]; 
     end
 
+encapsulation_radius=lead_radius + .2; %.2mm larger than normal
+encapsulation_color=[.3 .7 .3];
+encapsulation_transparency = .1;
+
 for ii=1:size(spline_points, 2)-1
     p1=spline_points(:,ii);
     p2=spline_points(:, ii+1);
@@ -77,6 +81,20 @@ for ii=1:size(spline_points, 2)-1
     else
         set(line_segment, 'FaceColor', [.75, .75, .75], 'EdgeColor', [.75, .75, .75]); %Used for any line segments that are not close to the electrode center
     end
+
+%% Create encapsulation layer
+    
+    [x_encap, y_encap, z_encap]=cylinder([0, encapsulation_radius], 50);
+    z_encap=z_encap*len;
+    for kk=1:numel(x_encap)
+        vec=R*[x_encap(kk) y_encap(kk) z_encap(kk)]';
+        x_encap(kk)=vec(1);
+        y_encap(kk)=vec(2);
+        z_encap(kk)=vec(3);
+    end
+    encap_segment=surf(x_encap + p1(1), y_encap+p1(2), z_encap+p1(3));
+    set(encap_segment, 'FaceColor', encapsulation_color, 'EdgeColor', 'none', 'FaceAlpha', encapsulation_transparency)
+
 end
 
 %% Adding a tip to the electrode lead
@@ -109,5 +127,29 @@ end
 
 tip=surf(X+p2(1), Y+p2(2), Z+p2(3));
 set(tip, 'FaceColor', 'k', 'EdgeColor', 'none');
+
+%% add encapsulation tip layer
+
+encapsulation_radius_tip=lead_radius + .2;
+
+[X_encap_tip, Y_encap_tip, Z_encap_tip] = sphere();
+X_encap_tip = X_encap_tip * encapsulation_radius_tip;
+Y_encap_tip = Y_encap_tip * encapsulation_radius_tip;
+Z_encap_tip = Z_encap_tip * encapsulation_radius_tip;
+mask_tip = Z_encap_tip >= 0 & Z_encap_tip <= encapsulation_radius_tip;
+X_encap_tip = X_encap_tip .* mask_tip;
+Y_encap_tip = Y_encap_tip .* mask_tip;
+Z_encap_tip = -Z_encap_tip .* mask_tip;
+
+for ii=1:numel(X_encap_tip)
+    vec = R * [X_encap_tip(ii), Y_encap_tip(ii), Z_encap_tip(ii)]';
+    X_encap_tip(ii) = vec(1);
+    Y_encap_tip(ii) = vec(2);
+    Z_encap_tip(ii) = vec(3);
+end
+
+encap_tip = surf(X_encap_tip + p2(1), Y_encap_tip + p2(2), Z_encap_tip + p2(3));
+set(encap_tip, 'FaceColor', encapsulation_color, 'EdgeColor', 'none', 'FaceAlpha', encapsulation_transparency);
+
 end
 
