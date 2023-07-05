@@ -40,6 +40,7 @@ hold on
 plot3(X(:,1),X(:,2),X(:,3),'.k','MarkerSize',13)           % electrode positions
 title('Electrode line fitting with SDV best-fit')
 xlabel('X (mm)'), ylabel('Y (mm)'), zlabel('Z (mm)');
+legend('Best Fit Line', 'Electrode Positions');
 
 disp(['Found best fit line in ' num2str(toc) ' seconds'])
 end

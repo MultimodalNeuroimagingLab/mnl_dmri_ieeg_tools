@@ -25,9 +25,9 @@ lead_size=1;
 setMyMatlabPaths;
 addpath(genpath(pwd)); 
 [my_subject_labels,bids_path] = dmri_subject_list();
-sub_label = my_subject_labels{1};
+sub_label = my_subject_labels{5};
 
-%% Load left tracks and files
+%% Load right tracks and files
 tic;
 
 %Change '' to use different tracks from DSI studio
@@ -36,8 +36,8 @@ all_trks = {'Uncinate_Fasciculus_R',...
     'Cingulum_Frontal_Parietal_R'};
 
 %Load DWI file
-dwi_file = fullfile(bids_path, 'BIDS_subjectsRaw', 'derivatives', 'qsiprep', ['sub-' sub_label],'ses-mri01','dwi',['sub-' sub_label '_ses-mri01_rec-none_run-01_space-T1w_desc-preproc_dwi.nii.gz']);
-%dwi_file = fullfile(bids_path, 'derivatives', 'qsiprep', ['sub-' sub_label],'ses-mri01','dwi',['sub-' sub_label '_ses-mri01_acq-diadem_space-T1w_desc-preproc_dwi.nii.gz']);
+%dwi_file = fullfile(bids_path, 'BIDS_subjectsRaw', 'derivatives', 'qsiprep', ['sub-' sub_label],'ses-mri01','dwi',['sub-' sub_label '_ses-mri01_rec-none_run-01_space-T1w_desc-preproc_dwi.nii.gz']);
+dwi_file = fullfile(bids_path, 'BIDS_subjectsRaw', 'derivatives', 'qsiprep', ['sub-' sub_label],'ses-mri01','dwi',['sub-' sub_label '_ses-mri01_acq-diadem_rec-gncd_run-01_space-T1w_desc-preproc_dwi.nii.gz']);
 
 ni_dwi = niftiRead(dwi_file);
 fg_fromtrk = [];
@@ -48,7 +48,7 @@ for ss = 1:length(all_trks)
 
     if ~exist(trk_file, 'file')
         try
-            trk_file_zip = fullfile(bids_path,['sub-' sub_label],'dsistudio',[trk_name '.trk.gz']);
+            trk_file_zip = fullfile(bids_path,'BIDS_subjectsRaw', 'derivatives', 'dsistudio', ['sub-' sub_label],[trk_name '.trk.gz']);
             gunzip(trk_file_zip);
         catch
             warningMessage = sprintf('Warning: Zipped track file does not exist:\n%s', trk_file_zip);
@@ -97,14 +97,14 @@ t1.data(t1.data>brighten_T1*max(t1.data(:))) = brighten_T1*max(t1.data(:));
 t1.sto_xyz = t1.qto_xyz;
 t1.sto_ijk = t1.qto_ijk;
 
-g = gifti(fullfile(bids_path,'BIDS_subjectsRaw', 'derivatives', 'qsiprep', ['sub-' sub_label],'pial_desc-qsiprep.L.surf.gii')); %Will need to do a surface of both sides
+g = gifti(fullfile(bids_path,'BIDS_subjectsRaw', 'derivatives', 'qsiprep', ['sub-' sub_label],'pial_desc-qsiprep.R.surf.gii')); %Will need to do a surface of both sides
 
 disp(['Loaded T1, created gifti in ' num2str(toc) ' seconds'])
 
 %% Glass brain render
 tic
 
-%figure();
+figure(1);
 h = ieeg_RenderGifti(g); 
 hold on
 
@@ -131,7 +131,7 @@ for ii=1:num_dbs_leads/2
     init=init+step;
     fin=fin+step;
 end
-    
+figure(1);    
 h.AmbientStrength=.3;
 h.DiffuseStrength=.8;
 h.FaceAlpha = 0.2;

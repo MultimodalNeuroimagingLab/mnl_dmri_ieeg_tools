@@ -14,7 +14,7 @@ lead_radius=1; % in mm
 %spline_fit=cscvn(electrode_positions'); 
 %If we want to make a longer lead a function like cscvn may cause problems 
 %spline_points=fnplt(spline_fit);
-
+figure(2)
 spline_points=linreg3(electrode_positions);
 
 p1=spline_points(1,:);
@@ -22,17 +22,22 @@ p2=spline_points(2,:);
 lead_direction=p2-p1;
 lead_direction=lead_direction/norm(lead_direction);
 
-extrap_length=10;
-extrap_point=spline_points(end,:) + extrap_length * lead_direction;
-spline_points=[spline_points; extrap_point];
+invlead=0;
+extrap_length=40;
+if invlead==1
+    extrap_point=spline_points(end,:) + extrap_length * lead_direction;
+    spline_points=[spline_points; extrap_point];
+else
+    extrap_point=spline_points(1, :) + extrap_length * -lead_direction;
+    spline_points=[extrap_point; spline_points];
+end
 
-upsample_factor=1000;
+upsample_factor=50;
 spline_points=upsample_points(spline_points, upsample_factor);
-
+set(findall(gcf,'-property','FontSize'),'FontSize',24)
 %% Create lead
-figure()
 hold on;
-
+figure(1)
 % axisAngleToRotMat has similar functionality to axang2rotm in Navigation, Robotics or UAV toolbox
 % Rotation matrix R allows 3D point to be rotated around ax (axis) by theta
 % (angle)
@@ -98,9 +103,14 @@ for ii=1:size(spline_points, 2)-1
 end
 
 %% Adding a tip to the electrode lead
-    
-p1=spline_points(:, 1); %Similar to above
-p2=spline_points(:,2);
+if invlead==1
+    p1=spline_points(:, 1); %Similar to above
+    p2=spline_points(:,2);
+else
+    p1=spline_points(:, end);
+    p2=spline_points(:, end-1);
+end
+
 dir=p1-p2;
 dir=dir/norm(dir);
 
@@ -116,6 +126,7 @@ Z=Z*lead_radius;
 mask = Z >= 0 & Z<= lead_radius;
 X=X.*mask;
 Y=Y.*mask;
+%Z=Z*mask;
 Z=-Z.*mask;
 
 for ii=1:numel(X)
@@ -139,8 +150,8 @@ Z_encap_tip = Z_encap_tip * encapsulation_radius_tip;
 mask_tip = Z_encap_tip >= 0 & Z_encap_tip <= encapsulation_radius_tip;
 X_encap_tip = X_encap_tip .* mask_tip;
 Y_encap_tip = Y_encap_tip .* mask_tip;
+%Z_encap_tip = Z_encap_tip .* mask_tip;
 Z_encap_tip = -Z_encap_tip .* mask_tip;
-
 for ii=1:numel(X_encap_tip)
     vec = R * [X_encap_tip(ii), Y_encap_tip(ii), Z_encap_tip(ii)]';
     X_encap_tip(ii) = vec(1);
