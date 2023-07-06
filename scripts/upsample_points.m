@@ -1,4 +1,4 @@
-function upsampled_spline_points=upsample_points(spline_points, upsample_factor)
+function upsampled_spline_points=upsample_points(varargin)
 
 %   Jordan Bilderbeek Jul 3
 
@@ -11,6 +11,8 @@ function upsampled_spline_points=upsample_points(spline_points, upsample_factor)
 %   quick render. 
 
 %% Upsampling
+spline_points=varargin{1};
+upsample_factor=varargin{2};
 
 %parameterization of the points
 original_param = 1:size(spline_points, 1);
@@ -25,14 +27,15 @@ z_upsampled = interp1(original_param, spline_points(:, 3), new_param, 'linear');
 
 upsampled_spline_points = [x_upsampled', y_upsampled', z_upsampled'];
 
-subplot(2,1,2)
-
-plot3(spline_points(:, 1), spline_points(:, 2), spline_points(:, 3), 'rx-', 'MarkerSize', 15); hold on;
-plot3(upsampled_spline_points(:, 1), upsampled_spline_points(:, 2), upsampled_spline_points(:, 3), 'bo-');
-legend('Original Points', 'Upsampled Points');
-xlabel('X (mm)'); ylabel('Y (mm)'); zlabel('Z (mm)');
-title('Original vs Upsampled Trajectory (with extrapolation point)');
-grid on;
+if nargin > 2
+    subplot(2,1,2)
+    plot3(spline_points(:, 1), spline_points(:, 2), spline_points(:, 3), 'rx-', 'MarkerSize', 15); hold on;
+    plot3(upsampled_spline_points(:, 1), upsampled_spline_points(:, 2), upsampled_spline_points(:, 3), 'bo-');
+    legend('Original Points', 'Upsampled Points');
+    xlabel('X (mm)'); ylabel('Y (mm)'); zlabel('Z (mm)');
+    title('Original vs Upsampled Trajectory (with extrapolation point)');
+    grid on;
+end
 
 upsampled_spline_points=upsampled_spline_points'; %change here instead of in the whole rest of function
 end
