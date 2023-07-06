@@ -33,8 +33,14 @@ x_max=max(x);
 dx=x_max-x_min;
 Xa=(x_min-0.05*dx)*R(:,1)' + X_ave;
 Xb=(x_max+0.05*dx)*R(:,1)' + X_ave;
-X_end=[Xa;Xb];
+X_end=[Xa;Xb]; %old output
 
+% X_end=zeros(size(X));
+% for ii=1:size(X, 1)
+%     point=X(ii,:);
+%     X_end(ii,:)=projectPoint2Line(point, Xa, Xb); % takes the original electrode position and projects onto principal axis
+% end
+    
 if nargin>1
     subplot(2,1,1)
     plot3(X_end(:,1),X_end(:,2),X_end(:,3),'-r','LineWidth',3) % best fit line 
