@@ -1,4 +1,4 @@
-function render_dbs_lead(electrode_positions, lead_size, ~)
+function render_dbs_lead(electrode_positions, lead_size, invlead)
 
 %   Jordan Bilderbeek June 19 2023
 
@@ -6,7 +6,7 @@ function render_dbs_lead(electrode_positions, lead_size, ~)
 %   fitting in order to add an extension that will exit the skull. As we 
 %   currently only plot the electrodes this is needed for DBS cases.
 
-%% Initialize
+%% Initialize 
 lead_radius=1; % in mm
 %num_points=1000; % For spline
 
@@ -15,15 +15,14 @@ lead_radius=1; % in mm
 %If we want to make a longer lead a function like cscvn may cause problems 
 %spline_points=fnplt(spline_fit);
 figure(2)
-spline_points=linreg3(electrode_positions);
+spline_points=linreg3(electrode_positions, 'plot');
 
 p1=spline_points(1,:);
 p2=spline_points(2,:);
 lead_direction=p2-p1;
 lead_direction=lead_direction/norm(lead_direction);
 
-invlead=0;
-extrap_length=40;
+extrap_length=45;
 if invlead==1
     extrap_point=spline_points(end,:) + extrap_length * lead_direction;
     spline_points=[spline_points; extrap_point];
@@ -33,7 +32,7 @@ else
 end
 
 upsample_factor=50;
-spline_points=upsample_points(spline_points, upsample_factor);
+spline_points=upsample_points(spline_points, upsample_factor, 'plot');
 set(findall(gcf,'-property','FontSize'),'FontSize',24)
 %% Create lead
 hold on;
