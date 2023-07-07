@@ -8,12 +8,10 @@ function render_dbs_lead(electrode_positions, lead_size, invlead)
 
 %% Initialize 
 lead_radius=1; % in mm
-%num_points=1000; % For spline
 
-%% Fit Spline
-%spline_fit=cscvn(electrode_positions'); 
-%If we want to make a longer lead a function like cscvn may cause problems 
-%spline_points=fnplt(spline_fit);
+
+%% Fit the electrode positions and upsample
+
 figure(2)
 spline_points=linreg3(electrode_positions, 'plot');
 
@@ -35,8 +33,9 @@ upsample_factor=50;
 spline_points=upsample_points(spline_points, upsample_factor, 'plot');
 set(findall(gcf,'-property','FontSize'),'FontSize',24)
 %% Create lead
+
+figure(1);
 hold on;
-figure(1)
 % axisAngleToRotMat has similar functionality to axang2rotm in Navigation, Robotics or UAV toolbox
 % Rotation matrix R allows 3D point to be rotated around ax (axis) by theta
 % (angle)

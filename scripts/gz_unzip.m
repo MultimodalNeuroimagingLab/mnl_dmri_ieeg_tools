@@ -26,7 +26,7 @@ end
 
 % Unzip R tracks
 for ii=1:length(Rtracks)
-    if ~exist(out_Ltracks{ii}, 'file')
+    if ~exist(out_Rtracks{ii}, 'file')
         try
             gunzip(Rtracks{ii});
         catch

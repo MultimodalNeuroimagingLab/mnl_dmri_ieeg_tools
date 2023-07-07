@@ -18,12 +18,13 @@ clear all;
 num_dbs_leads=4;
 num_electrodes_per_lead=4;
 lead_size=1; 
+color={[.2 .7 .2], [.9 0 .6], [.9 .8 .5], [.5 .8 .9], [.6 .4 .2], [.4 .4 .6], [.2 .7 .2], [.9 0 .6], [.9 .8 .5], [.5 .8 .9], [.6 .4 .2], [.4 .4 .6]};
 
 setMyMatlabPaths;
 addpath(genpath(pwd)); 
 
 [my_subject_labels,bids_path] = dmri_subject_list();
-sub_label = my_subject_labels{5};
+sub_label = my_subject_labels{3};
 
 %% Load right tracks and files
 tic;
@@ -34,7 +35,7 @@ dsipath=fullfile(bids_path,'BIDS_subjectsRaw', 'derivatives','dsistudio',['sub-'
 
 %Load DWI file
 %dwi_file = fullfile(bids_path, 'BIDS_subjectsRaw', 'derivatives', 'qsiprep', ['sub-' sub_label],'ses-mri01','dwi',['sub-' sub_label '_ses-mri01_rec-none_run-01_space-T1w_desc-preproc_dwi.nii.gz']);
-dwi_file = fullfile(bids_path, 'BIDS_subjectsRaw', 'derivatives', 'qsiprep', ['sub-' sub_label],'ses-mri01','dwi',['sub-' sub_label '_ses-mri01_acq-diadem_rec-gncd_run-01_space-T1w_desc-preproc_dwi.nii.gz']);
+dwi_file = fullfile(bids_path, 'BIDS_subjectsRaw', 'derivatives', 'qsiprep', ['sub-' sub_label],'ses-compact3T01','dwi',['sub-' sub_label '_ses-compact3T01_acq-diadem_rec-gncd_dir-AP_run-01_space-T1w_desc-preproc_dwi.nii.gz']);
 
 ni_dwi = niftiRead(dwi_file);
 fg_fromtrk = [];
@@ -79,13 +80,12 @@ tic
 figure(1);
 g = gifti(fullfile(bids_path,'BIDS_subjectsRaw', 'derivatives', 'qsiprep', ['sub-' sub_label],'pial_desc-qsiprep.R.surf.gii')); %Will need to do a surface of both sides
 h = ieeg_RenderGifti(g); 
-hold on
 
-%Render all the DTI tracks. Color can be changed:
-color={[.2 .7 .2], [.9 0 .6], [.9 .8 .5], [.5 .8 .9], [.6 .4 .2], [.4 .4 .6], [.2 .7 .2], [.9 0 .6], [.9 .8 .5], [.5 .8 .9], [.6 .4 .2], [.4 .4 .6]};
+hold on
 for ii=1:length(fg_fromtrk)
     AFQ_RenderFibers(fg_fromtrk(ii),'numfibers',300,'color',color{ii},'newfig', false);
 end
+hold off
 disp(['Created track render in ' num2str(toc) ' seconds'])
 
 
@@ -102,11 +102,40 @@ for ii=1:num_dbs_leads/2
     render_dbs_lead(elecmatrix(init:fin, :), lead_size, invlead)
     init=init+step;
     fin=fin+step;
-end
-figure(1);    
+end   
 h.AmbientStrength=.3;
 h.DiffuseStrength=.8;
 h.FaceAlpha = 0.2;
+
+%% Add ROI
+
+load(fullfile(bids_path, 'BIDS_SubjectsRaw', 'derivatives', 'dsistudio', ['sub-' sub_label], 'Hippocampus_Right.nii.nii.gz.mat'));
+image=reshape(image, dimension);
+transformation=transf_mat(1:3, 4);
+transf_mat(1:3, 4)=0;
+D=diag(transf_mat);
+transformation=transformation .* D(1:3);
+
+data=imwarp(image, affine3d(transf_mat));
+
+patch(isocaps(data,.5),...
+    'FaceColor','interp','EdgeColor','none');
+p1 = patch(isosurface(data,.5),...
+    'FaceColor','red','EdgeColor','none');
+p1.XData=p1.XData + transformation(1);
+p1.YData=p1.YData + transformation(2);
+p1.ZData=p1.ZData + transformation(3);
+
+isonormals(data,p1)
+axis vis3d tight
+camlight left; 
+colormap jet
+lighting gouraud
+
+out=input('Continue plotting? (y/n)', "s");
+if out=='n'
+    return
+end
 
 %% Now for the left side ... load left tracks
 
