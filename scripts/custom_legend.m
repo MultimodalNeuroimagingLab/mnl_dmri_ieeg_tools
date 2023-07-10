@@ -1,4 +1,4 @@
-function custom_legend(trk_file, colors)
+function custom_legend(trk_file, colors, sub_label)
 
 %   Jordan Bilderbeek July 10 2023
 
@@ -18,5 +18,5 @@ for ii=1:length(trk_file)
     L(ii)=plot(nan, nan, 'Color', colors{ii}, 'LineWidth', 8); %create nan line
 end
 
-lgd=legend(L(1:ii), alltracks, 'Interpreter', 'none', 'FontSize', 12); %create legend
-title(lgd, 'Tracks Visualized')
+lgd=legend(L(1:ii), alltracks, 'Interpreter', 'none', 'FontSize', 18); %create legend
+title(lgd, ['Tracks Visualized: ' sub_label])
