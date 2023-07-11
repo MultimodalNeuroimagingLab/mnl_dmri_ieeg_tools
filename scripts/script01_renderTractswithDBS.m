@@ -18,13 +18,13 @@ clear all;
 num_dbs_leads=4;
 num_electrodes_per_lead=4;
 lead_size=1; 
-color={[.2 .7 .2], [.9 0 .6], [.9 .8 .5], [.5 .8 .9], [.6 .4 .2], [.4 .4 .6], [.2 .7 .2], [.9 0 .6], [.9 .8 .5], [.5 .8 .9], [.6 .4 .2], [.4 .4 .6]};
+color={[0 .0706 .0980], [0 .3725 .4510], [.5804 .8235 .7412], [.9137 .8471 .6510], [0.9333 0.6078 0], [0.7922 0.4039 0.0078], [0.6824 0.1255 0.0706]};
 
 setMyMatlabPaths;
 addpath(genpath(pwd)); 
 
 [my_subject_labels,bids_path] = dmri_subject_list();
-sub_label = my_subject_labels{3};
+sub_label = my_subject_labels{5};
 
 %% Load right tracks and files
 tic;
@@ -35,7 +35,9 @@ dsipath=fullfile(bids_path,'BIDS_subjectsRaw', 'derivatives','dsistudio',['sub-'
 
 %Load DWI file
 %dwi_file = fullfile(bids_path, 'BIDS_subjectsRaw', 'derivatives', 'qsiprep', ['sub-' sub_label],'ses-mri01','dwi',['sub-' sub_label '_ses-mri01_rec-none_run-01_space-T1w_desc-preproc_dwi.nii.gz']);
-dwi_file = fullfile(bids_path, 'BIDS_subjectsRaw', 'derivatives', 'qsiprep', ['sub-' sub_label],'ses-compact3T01','dwi',['sub-' sub_label '_ses-compact3T01_acq-diadem_rec-gncd_dir-AP_run-01_space-T1w_desc-preproc_dwi.nii.gz']);
+dwi_file = fullfile(bids_path, 'BIDS_subjectsRaw', 'derivatives', 'qsiprep', ['sub-' sub_label],'ses-mri01','dwi',['sub-' sub_label '_ses-mri01_acq-diadem_space-T1w_desc-preproc_dwi.nii.gz']);
+%dwi_file = fullfile(bids_path, 'BIDS_subjectsRaw', 'derivatives', 'qsiprep', ['sub-' sub_label],'ses-compact3T01','dwi',['sub-' sub_label '_ses-compact3T01_acq-diadem_space-T1w_desc-preproc_dwi.nii.gz']);
+
 
 ni_dwi = niftiRead(dwi_file);
 fg_fromtrk = [];
@@ -90,7 +92,12 @@ disp(['Created track render in ' num2str(toc) ' seconds'])
 
 
 %% Adding electrodes
-load(fullfile(bids_path,'sourcedata',['sub-' sub_label],'positionsBrinkman', 'electrodes_loc1.mat')); %Will need to do a surface of both sides
+%load(fullfile(bids_path,'sourcedata',['sub-' sub_label],'positionsBrinkman', 'electrodes_loc1.mat')); %Will need to do a surface of both sides
+
+
+electrodepositions = fullfile(bids_path,'BIDS_subjectsRaw','derivatives', 'qsiprep', ['sub-' sub_label], ['sub-' sub_label '_ses-mri01_space-T1w_desc-qsiprep_electrodes.tsv']);
+elecmatrix=readtable(electrodepositions, 'FileType', 'text', 'Delimiter', '\t');
+elecmatrix=table2array(elecmatrix);
 
 init=length(elecmatrix)/2+1;
 fin=init+num_electrodes_per_lead-1;
@@ -107,30 +114,37 @@ h.AmbientStrength=.3;
 h.DiffuseStrength=.8;
 h.FaceAlpha = 0.2;
 
-%% Add ROI
+tmpmat=elecmatrix(9:16, :);
+camlight right
+addElectrode(tmpmat, 2, 'b', 0, .3);
+custom_legend(Ltracks, color, sub_label)
+montage3;
 
-load(fullfile(bids_path, 'BIDS_SubjectsRaw', 'derivatives', 'dsistudio', ['sub-' sub_label], 'Hippocampus_Right.nii.nii.gz.mat'));
-image=reshape(image, dimension);
-transformation=transf_mat(1:3, 4);
-transf_mat(1:3, 4)=0;
-D=diag(transf_mat);
-transformation=transformation .* D(1:3);
+% %% Add ROI
+% 
+% load(fullfile(bids_path, 'BIDS_SubjectsRaw', 'derivatives', 'dsistudio', ['sub-' sub_label], 'Hippocampus_Right.nii.nii.gz.mat'));
+% image=reshape(image, dimension);
+% transformation=transf_mat(1:3, 4);
+% transf_mat(1:3, 4)=0;
+% D=diag(transf_mat);
+% transformation=transformation .* D(1:3);
+% 
+% data=imwarp(image, affine3d(transf_mat));
+% 
+% patch(isocaps(data,.5),...
+%     'FaceColor','interp','EdgeColor','none');
+% p1 = patch(isosurface(data,.5),...
+%     'FaceColor','red','EdgeColor','none');
+% p1.XData=p1.XData + transformation(1);
+% p1.YData=p1.YData + transformation(2);
+% p1.ZData=p1.ZData + transformation(3);
+% 
+% isonormals(data,p1)
+% axis vis3d tight
+% camlight left; 
+% colormap jet
+% lighting gouraud
 
-data=imwarp(image, affine3d(transf_mat));
-
-patch(isocaps(data,.5),...
-    'FaceColor','interp','EdgeColor','none');
-p1 = patch(isosurface(data,.5),...
-    'FaceColor','red','EdgeColor','none');
-p1.XData=p1.XData + transformation(1);
-p1.YData=p1.YData + transformation(2);
-p1.ZData=p1.ZData + transformation(3);
-
-isonormals(data,p1)
-axis vis3d tight
-camlight left; 
-colormap jet
-lighting gouraud
 
 out=input('Continue plotting? (y/n)', "s");
 if out=='n'
