@@ -21,10 +21,11 @@ lead_size=1;
 color={[0 .0706 .0980], [0 .3725 .4510], [.5804 .8235 .7412], [.9137 .8471 .6510], [0.9333 0.6078 0], [0.7922 0.4039 0.0078], [0.6824 0.1255 0.0706]};
 
 setMyMatlabPaths;
-addpath(genpath(pwd)); 
+addpath(genpath(pwd));
+subnum=3;
 
 [my_subject_labels,bids_path] = dmri_subject_list();
-sub_label = my_subject_labels{5};
+sub_label = my_subject_labels{subnum};
 
 %% Load right tracks and files
 tic;
@@ -33,11 +34,15 @@ dsipath=fullfile(bids_path,'BIDS_subjectsRaw', 'derivatives','dsistudio',['sub-'
 [Ltracks, Rtracks]=getDSItracks(dsipath);
 [Ltracks, Rtracks]=gz_unzip(Ltracks, Rtracks);
 
-%Load DWI file
-%dwi_file = fullfile(bids_path, 'BIDS_subjectsRaw', 'derivatives', 'qsiprep', ['sub-' sub_label],'ses-mri01','dwi',['sub-' sub_label '_ses-mri01_rec-none_run-01_space-T1w_desc-preproc_dwi.nii.gz']);
-dwi_file = fullfile(bids_path, 'BIDS_subjectsRaw', 'derivatives', 'qsiprep', ['sub-' sub_label],'ses-mri01','dwi',['sub-' sub_label '_ses-mri01_acq-diadem_space-T1w_desc-preproc_dwi.nii.gz']);
-%dwi_file = fullfile(bids_path, 'BIDS_subjectsRaw', 'derivatives', 'qsiprep', ['sub-' sub_label],'ses-compact3T01','dwi',['sub-' sub_label '_ses-compact3T01_acq-diadem_space-T1w_desc-preproc_dwi.nii.gz']);
-
+%Load DWI file:
+switch subnum
+    case 2
+        dwi_file = fullfile(bids_path, 'BIDS_subjectsRaw', 'derivatives', 'qsiprep', ['sub-' sub_label],'ses-compact3T01','dwi',['sub-' sub_label '_ses-compact3T01_acq-diadem_space-T1w_desc-preproc_dwi.nii.gz']);
+    case 4
+        dwi_file = fullfile(bids_path, 'BIDS_subjectsRaw', 'derivatives', 'qsiprep', ['sub-' sub_label],'ses-mri01','dwi',['sub-' sub_label '_ses-mri01_acq-diadem_space-T1w_desc-preproc_dwi.nii.gz']);
+    otherwise
+        dwi_file = fullfile(bids_path, 'BIDS_subjectsRaw', 'derivatives', 'qsiprep', ['sub-' sub_label],'ses-mri01','dwi',['sub-' sub_label '_ses-mri01_rec-none_run-01_space-T1w_desc-preproc_dwi.nii.gz']);
+end
 
 ni_dwi = niftiRead(dwi_file);
 fg_fromtrk = [];
@@ -94,7 +99,6 @@ disp(['Created track render in ' num2str(toc) ' seconds'])
 %% Adding electrodes
 %load(fullfile(bids_path,'sourcedata',['sub-' sub_label],'positionsBrinkman', 'electrodes_loc1.mat')); %Will need to do a surface of both sides
 
-
 electrodepositions = fullfile(bids_path,'BIDS_subjectsRaw','derivatives', 'qsiprep', ['sub-' sub_label], ['sub-' sub_label '_ses-mri01_space-T1w_desc-qsiprep_electrodes.tsv']);
 elecmatrix=readtable(electrodepositions, 'FileType', 'text', 'Delimiter', '\t');
 elecmatrix=table2array(elecmatrix);
@@ -113,10 +117,12 @@ end
 h.AmbientStrength=.3;
 h.DiffuseStrength=.8;
 h.FaceAlpha = 0.2;
+view(-127,-12)
+lightangle(-127, -12)
 
 tmpmat=elecmatrix(9:16, :);
 camlight right
-addElectrode(tmpmat, 2, 'b', 0, .3);
+addElectrode(tmpmat, 2, 'b', 0, .2);
 custom_legend(Ltracks, color, sub_label)
 montage3;
 

@@ -11,6 +11,9 @@ function [X_end] = linreg3(varargin)
 %   makes the X Y Z coordinates offset in a direction. For visualization we
 %   find the line of bset fit (assume there to be no curve in the DBS probe). 
 
+%   We assume that first arg is the matrix of points - must be formatted
+%   s.t N=size(X,2). Second arg can be optional 'plot.'
+
 %% linreg3
 tic
 X=varargin{1};
@@ -37,8 +40,7 @@ X_end=[Xa;Xb]; %old output
 
 % X_end=zeros(size(X));
 % for ii=1:size(X, 1)
-%     point=X(ii,:);
-%     X_end(ii,:)=projectPoint2Line(point, Xa, Xb); % takes the original electrode position and projects onto principal axis
+%     X_end(ii,:)=projectPoint2Line(X(ii,:), Xa, Xb); % takes the original electrode position and projects onto principal axis
 % end
     
 if nargin>1

@@ -20,7 +20,7 @@ p2=spline_points(2,:);
 lead_direction=p2-p1;
 lead_direction=lead_direction/norm(lead_direction);
 
-extrap_length=45;
+extrap_length=70;
 if invlead==1
     extrap_point=spline_points(end,:) + extrap_length * lead_direction;
     spline_points=[spline_points; extrap_point];
@@ -29,7 +29,7 @@ else
     spline_points=[extrap_point; spline_points];
 end
 
-upsample_factor=50;
+upsample_factor=500;
 spline_points=upsample_points(spline_points, upsample_factor, 'plot');
 set(findall(gcf,'-property','FontSize'),'FontSize',24)
 %% Create lead
@@ -114,7 +114,7 @@ dir=dir/norm(dir);
 
 ax=cross([0 0 -1], dir);
 ax=ax/norm(ax);
-theta=acos(dot([0 0 -1], dir)); % Where lines 84-85 will adjust the direction and angle
+theta=acos(dot([0 0 -1], dir));
 R=axisAngleToRotMat(ax, theta); %create orthonormal rotation matrix
 
 [X,Y,Z]=sphere();
