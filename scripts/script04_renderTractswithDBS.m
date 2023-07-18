@@ -1,6 +1,6 @@
 %   Jordan Bilderbeek June 19 2023
 
-%   This script is very similar to script01_renderTractswithElectrodes. We
+%   This script is very similar to script03_renderTractswithElectrodes. We
 %   load the tracks via DSI studio, then plot in a glass brain render.
 %   However, because we are plotting DBS leads instead of sEEG we can
 %   simplify the script a fair bit; we dont need to perform any complex
@@ -62,7 +62,7 @@ for ss = 1:length(Rtracks)
         % We apply a transofrmatrion matrix to make sure the tracks are in the
         % original dMRI space
         trk_name=regexp(trk_file, '/', 'split');
-        fg_fromtrk(ss).name = trk_name{end};
+        fg_fromtrk(ss).name = regexprep(trk_name{end}, '_R.trk', '');
         fg_fromtrk(ss).colorRgb = [20 90 200];
         fg_fromtrk(ss).thickness = 0.5;
         fg_fromtrk(ss).visible = 1;
@@ -124,7 +124,6 @@ tmpmat=elecmatrix(9:16, :);
 camlight right
 addElectrode(tmpmat, 2, 'b', 0, .2);
 custom_legend(Ltracks, color, sub_label)
-montage3;
 
 % %% Add ROI
 % 
@@ -174,6 +173,7 @@ for ss = 1:length(Ltracks)
 
         trk_name=regexp(trk_file, '/', 'split');
         fg_fromtrk(ss).name = trk_name{end};
+        fg_fromtrk(ss).name = regexprep(trk_name{end}, '_L.trk', '');
         fg_fromtrk(ss).colorRgb = [20 90 200];
         fg_fromtrk(ss).thickness = 0.5;
         fg_fromtrk(ss).visible = 1;
