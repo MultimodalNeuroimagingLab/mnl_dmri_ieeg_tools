@@ -13,8 +13,8 @@ function fg_fromtrk=euclidean_distance(fg_fromtrk, roi, varargin)
 %       fiber track. 
 %       b) roi - typically a 1x3 xyz of electrode centroid. Can be any
 %       other region of interest. 
-%       c) varargin will take inputs to calculate distances from specific
-%       tracks only. 
+%       c) varargin - can add 'angle' as a tag - nargin will recognize and
+%       compute the angle between electrode and streamline. 
 
 %       Example use: euclidean_distance(fg_fromtrk, roi, 'Fornix', 'Cingulum_Frontal_Parietal').
 
@@ -34,24 +34,24 @@ end
 roi=roi';
 for ii=1:length(fg_fromtrk) %Calculate distance for all
     for jj=1:length(fg_fromtrk(ii).fibers)
-        [N,M]=size(fg_fromtrk(ii).fibers{jj});
-        mat=reshape(roi, N, 1, []);
-        dist=vecl2norm(bsxfun(@minus, fg_fromtrk(ii).fibers{jj}, mat), 1);  
+        [~,M]=size(fg_fromtrk(ii).fibers{jj});
+        dist=vecl2norm(bsxfun(@minus, fg_fromtrk(ii).fibers{jj}, roi), 1);  
         fg_fromtrk(ii).distance{jj}=reshape(dist, M, []);
     end
 end
 
-
+%% Calculate angle
 if nargin > 2 %can add 'angle' tag in function call to compute the angle as well
     pnorm=roi/norm(roi); 
     for ii=1:length(fg_fromtrk) 
-        for jj=1:length(fg_fromtrk(ii).fibers) %a vectorized approach to calculating angle instead of iterating through each
+        for jj=1:length(fg_fromtrk(ii).fibers) %a vectorized approach to calculating angle instead of iterating through each 3xN array
             [~,M]=size(fg_fromtrk(ii).fibers{jj});
             vdiff=fg_fromtrk(ii).fibers{jj}-roi; % Create vector
             vdiffnorm=sqrt(sum(vdiff.^2, 1)); %Compute norm of vector
             vdiffnorm=bsxfun(@rdivide, vdiff, vdiffnorm); %Normalize all vectors
             dot=sum(bsxfun(@times, pnorm, vdiffnorm), 1);
-            fg_fromtrk(ii).angle{jj}=reshape(acosd(dot), M, []);
+            %fg_fromtrk(ii).angle{jj}=reshape(acosd(dot), M, []);
+            fg_fromtrk(ii).angle{jj}=reshape(acos(dot), M, []);
         end
     end
 end
