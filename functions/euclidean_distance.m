@@ -1,4 +1,4 @@
-function fg_fromtrk=euclidean_distance(fg_fromtrk, roi)
+function fg_fromtrk=euclidean_distance(fg_fromtrk, roi, varargin)
 
 %   Jordan Bilderbeek July 18 2023
 
@@ -31,13 +31,28 @@ function dist=vecl2norm(mat,varargin)
 end
 
 %% Calculate euclidean distance via l2norm
-
+roi=roi';
 for ii=1:length(fg_fromtrk) %Calculate distance for all
     for jj=1:length(fg_fromtrk(ii).fibers)
         [N,M]=size(fg_fromtrk(ii).fibers{jj});
-        mat=reshape(roi', N, 1, []);
+        mat=reshape(roi, N, 1, []);
         dist=vecl2norm(bsxfun(@minus, fg_fromtrk(ii).fibers{jj}, mat), 1);  
         fg_fromtrk(ii).distance{jj}=reshape(dist, M, []);
+    end
+end
+
+
+if nargin > 2 %can add 'angle' tag in function call to compute the angle as well
+    pnorm=roi/norm(roi); 
+    for ii=1:length(fg_fromtrk) 
+        for jj=1:length(fg_fromtrk(ii).fibers) %a vectorized approach to calculating angle instead of iterating through each
+            [~,M]=size(fg_fromtrk(ii).fibers{jj});
+            vdiff=fg_fromtrk(ii).fibers{jj}-roi; % Create vector
+            vdiffnorm=sqrt(sum(vdiff.^2, 1)); %Compute norm of vector
+            vdiffnorm=bsxfun(@rdivide, vdiff, vdiffnorm); %Normalize all vectors
+            dot=sum(bsxfun(@times, pnorm, vdiffnorm), 1);
+            fg_fromtrk(ii).angle{jj}=reshape(acosd(dot), M, []);
+        end
     end
 end
 
