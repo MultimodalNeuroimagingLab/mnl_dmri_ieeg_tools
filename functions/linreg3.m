@@ -1,16 +1,16 @@
 function [X_end] = linreg3(varargin)
 
 %   Jordan Bilderbeek June 30, 2023
-
+%
 %   Perform line of best fit (least squares) via SVD in order to find the line of
 %   best fit between the different electrode positions. This will give us a
 %   smooth line (avoid cubic splines...etc). 
-
+%
 %   Implemented as CTMR output is quite variable. We can easily identify
 %   the locations based on the CT positions; but sometimes the selection
 %   makes the X Y Z coordinates offset in a direction. For visualization we
 %   find the line of bset fit (assume there to be no curve in the DBS probe). 
-
+%
 %   We assume that first arg is the matrix of points - must be formatted
 %   s.t N=size(X,2). Second arg can be optional 'plot.'
 
@@ -27,7 +27,7 @@ C=(dX'*dX)/(N-1);           % variance-covariance matrix of X
 D=diag(D);
 R2=D(1)/sum(D);
 
-disp(['R-sqared between probe locations: ' num2str(R2) ])
+%disp(['R-sqared between probe locations: ' num2str(R2) ])
 
 % End-points of a best-fit line (segment)
 x=dX*R(:,1);
@@ -51,9 +51,8 @@ if nargin>1
     title('Electrode line fitting with SDV best-fit')
     xlabel('X (mm)'), ylabel('Y (mm)'), zlabel('Z (mm)');
     legend('Best Fit Line', 'Electrode Positions');
-    disp(['Found best fit line in ' num2str(toc) ' seconds'])
 end
-
+disp(['Found best fit line in ' num2str(toc) ' seconds'])
 
 end
 

@@ -9,7 +9,7 @@
 %% calc statistics - distance and angle (RIGHT SIDE - el 9:16)
 % this assumes we have the right side fg_fromtrk struct and are using
 % elecmatrix(9:16, :)
-subnum=3;
+subnum=1;
 [my_subject_labels,bids_path] = dmri_subject_list();
 sub_label = my_subject_labels{subnum};
 dsipath=fullfile(bids_path,'BIDS_subjectsRaw', 'derivatives','dsistudio',['sub-' sub_label]);
@@ -59,14 +59,14 @@ electrodepositions = fullfile(bids_path,'BIDS_subjectsRaw','derivatives', 'qsipr
 elecmatrix=readtable(electrodepositions, 'FileType', 'text', 'Delimiter', '\t');
 elecmatrix=table2array(elecmatrix);
 
-elecmatrix=elecmatrix(9:16, :);
 for ii=1:length(elecmatrix)
-    elname=ii+8;
-    el(elname).name=['R-Electrode ' num2str(elname)];
-    el(elname).trackstats=euclidean_distance(fg_fromtrk, elecmatrix(ii, :));
+    el(ii+8).name=['R-Electrode ' num2str(ii+8)];
+    fg_fromtrk=euclidean_distance(fg_fromtrk, elecmatrix(ii+8, :));
+    el(ii+8).trackstats = strm_angle(fg_fromtrk,elecmatrix(ii+8, :), 2);
 end
 
 %% calc statistics - distance and angle (LEFT SIDE - el 1:8)
+disp('Now calculating left side')
 
 fg_fromtrk = [];
 
@@ -96,18 +96,12 @@ for ss = 1:length(Ltracks)
     end
 end
 
-elecmatrix=readtable(electrodepositions, 'FileType', 'text', 'Delimiter', '\t');
-elecmatrix=table2array(elecmatrix);
-
-elecmatrix=elecmatrix(1:8, :);
 for ii=1:length(elecmatrix)
     el(ii).name=['L-Electrode ' num2str(ii)];
-    el(ii).trackstats=euclidean_distance(fg_fromtrk, elecmatrix(ii, :));
+    fg_fromtrk=euclidean_distance(fg_fromtrk, elecmatrix(ii, :));
+    el(ii).trackstats = strm_angle(fg_fromtrk,elecmatrix(ii, :), 2);
 end
 
 %% save statistics
-
-[my_subject_labels,bids_path] = dmri_subject_list();
-sub_label = my_subject_labels{3};
 dsipath=fullfile(bids_path,'BIDS_subjectsRaw', 'derivatives','dsistudio',['sub-' sub_label], 'stats.mat');
 save(dsipath, 'el');
