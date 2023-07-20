@@ -1,9 +1,20 @@
 %   Jordan Bilderbeek July 19 2023
-
-%   Performs a function call to euclidean distance. We have to iterate over
-%   the electrode positions and can save them out in a seperate structure.
-%   The rendering needs to be performed before such that we have the
-%   elecmatrix and fg_fromtrk structure. 
+%
+%   Script to calculate statistics (distance and angles) for one subject.
+%   Change subnum to move through the subject labels. 
+%   We save all the statistics in the el struct. 
+%
+%   The structure is organized as a 1x16 with fields name and trackstats.
+%   Name is the electrode contact # and either R/L. If we index into the
+%   el.trackstats, it is a 1xN structure array with name of the fibers,
+%   fibers (points), distance, and angle. 
+%
+%   To pull out a the angle between a specific electrode and fiber, index
+%   via el(contact#).trackstats(track#).angle.
+%
+%   NaN's are present in the el.trackstats.angle when there were less than
+%   two points under X distance (set in the strm_angle function call) as we
+%   cannot fit the PC axis and calculate the subsequent angle. 
 
 
 %% calc statistics - distance and angle (RIGHT SIDE - el 9:16)
