@@ -1,4 +1,4 @@
-function render_dbs_lead(electrode_positions, lead_size, invlead)
+function render_dbs_lead(electrode_positions, lead_size, extrap_length, invlead)
 
 %   Jordan Bilderbeek June 19 2023
 
@@ -7,8 +7,7 @@ function render_dbs_lead(electrode_positions, lead_size, invlead)
 %   currently only plot the electrodes this is needed for DBS cases.
 
 %% Initialize 
-lead_radius=1; % in mm
-
+lead_radius=.635; % in mm
 
 %% Fit the electrode positions and upsample
 
@@ -20,7 +19,6 @@ p2=spline_points(2,:);
 lead_direction=p2-p1;
 lead_direction=lead_direction/norm(lead_direction);
 
-extrap_length=70;
 if invlead==1
     extrap_point=spline_points(end,:) + extrap_length * lead_direction;
     spline_points=[spline_points; extrap_point];
@@ -29,7 +27,7 @@ else
     spline_points=[extrap_point; spline_points];
 end
 
-upsample_factor=500;
+upsample_factor=1000;
 spline_points=upsample_points(spline_points, upsample_factor, 'plot');
 set(findall(gcf,'-property','FontSize'),'FontSize',24)
 %% Create lead

@@ -15,14 +15,11 @@
 close all;
 clear all;
 
-num_dbs_leads=4;
-num_electrodes_per_lead=4;
-lead_size=1; 
 color={[0 .0706 .0980], [0 .3725 .4510], [.5804 .8235 .7412], [.9137 .8471 .6510], [0.9333 0.6078 0], [0.7922 0.4039 0.0078], [0.6824 0.1255 0.0706]};
 
 setMyMatlabPaths;
 addpath(genpath(pwd));
-subnum=3;
+subnum=1;
 
 [my_subject_labels,bids_path] = dmri_subject_list();
 sub_label = my_subject_labels{subnum};
@@ -97,36 +94,30 @@ disp(['Created track render in ' num2str(toc) ' seconds'])
 
 
 %% Adding electrodes
-%load(fullfile(bids_path,'sourcedata',['sub-' sub_label],'positionsBrinkman', 'electrodes_loc1.mat')); %Will need to do a surface of both sides
 
-electrodepositions = fullfile(bids_path,'BIDS_subjectsRaw','derivatives', 'qsiprep', ['sub-' sub_label], ['sub-' sub_label '_ses-mri01_space-T1w_desc-qsiprep_electrodes.tsv']);
-elecmatrix=readtable(electrodepositions, 'FileType', 'text', 'Delimiter', '\t');
+elecmatrix=readtable(fullfile(bids_path,'BIDS_subjectsRaw','derivatives', 'qsiprep', ['sub-' sub_label], ['sub-' sub_label '_ses-mri01_space-T1w_desc-qsiprep_electrodes.tsv']), 'FileType', 'text', 'Delimiter', '\t');
 elecmatrix=table2array(elecmatrix);
 
-init=length(elecmatrix)/2+1;
-fin=init+num_electrodes_per_lead-1;
-step=num_electrodes_per_lead;
-
-invlead=0;
-for ii=1:num_dbs_leads/2
-    disp(['Creating Right lead number ' num2str(ii)]);
-    render_dbs_lead(elecmatrix(init:fin, :), lead_size, invlead)
-    init=init+step;
-    fin=fin+step;
-end   
-h.AmbientStrength=.3;
-h.DiffuseStrength=.8;
+%Medtronic 3387 RC+S (total length 57.1mm - extension 46.6mm). R=.75mm
+render_dbs_lead(elecmatrix(9:12, :), .75, 46.6, 0)
+%Medtronic 3391 RC+S (total length 57.1mm - extension 32.6mm). R=1.5mm
+render_dbs_lead(elecmatrix(13:16, :), 1.5, 32.6, 0) 
 h.FaceAlpha = 0.2;
-view(-127,-12)
-lightangle(-127, -12)
+loc_view(90,0)
 
-tmpmat=elecmatrix(9:16, :);
-camlight right
-addElectrode(tmpmat, 2, 'b', 0, .2);
-custom_legend(Ltracks, color, sub_label)
+addElectrode(elecmatrix(9:16, :), 'b', 0, .2, 9:16); %add blue rendering
+custom_legend(Ltracks, color, sub_label) %add custom legend
 
-% %% Add ROI
-% 
+%% Add ROI
+
+Rh=niftiRead(fullfile(bids_path,'BIDS_subjectsRaw','derivatives', 'freesurfer', ['sub-' sub_label], sub_label, 'mri', 'Right-Hippocampus_preproc.nii.gz' ));
+[rr,cc,vv] = ind2sub(size(Rh.data),find(Rh.data>0));
+[xyz] = [rr cc vv ones(size(vv))] * Rh.qto_xyz';
+roi.coords = xyz(:,1:3);
+%AFQ_RenderRoi(roi,[],'isosurface','surface')
+AFQ_RenderRoi(roi,[],'trimesh','surface')
+
+
 % load(fullfile(bids_path, 'BIDS_SubjectsRaw', 'derivatives', 'dsistudio', ['sub-' sub_label], 'Hippocampus_Right.nii.nii.gz.mat'));
 % image=reshape(image, dimension);
 % transformation=transf_mat(1:3, 4);
@@ -136,15 +127,12 @@ custom_legend(Ltracks, color, sub_label)
 % 
 % data=imwarp(image, affine3d(transf_mat));
 % 
-% patch(isocaps(data,.5),...
-%     'FaceColor','interp','EdgeColor','none');
-% p1 = patch(isosurface(data,.5),...
-%     'FaceColor','red','EdgeColor','none');
-% p1.XData=p1.XData + transformation(1);
-% p1.YData=p1.YData + transformation(2);
-% p1.ZData=p1.ZData + transformation(3);
+patch(isocaps(data,.5),...
+    'FaceColor','interp','EdgeColor','none');
+p1 = patch(isosurface(data,.5),...
+    'FaceColor','red','EdgeColor','none');
 % 
-% isonormals(data,p1)
+isonormals(data,p1)
 % axis vis3d tight
 % camlight left; 
 % colormap jet
@@ -208,19 +196,4 @@ disp(['Created track render in ' num2str(toc) ' seconds'])
 
 %% Adding electrodes
 
-init=1;
-fin=num_electrodes_per_lead;
-step=num_electrodes_per_lead;
 
-invlead=1;
-for ii=1:num_dbs_leads/2
-    disp(['Creating left lead number ' num2str(ii)])
-    render_dbs_lead(elecmatrix(init:fin, :), lead_size, invlead)
-    init=init+step;
-    fin=fin+step;
-end
-    
-h.AmbientStrength=.3;
-h.DiffuseStrength=.8;
-h.FaceAlpha = 0.2;
-light('Position', [90 30 0])
