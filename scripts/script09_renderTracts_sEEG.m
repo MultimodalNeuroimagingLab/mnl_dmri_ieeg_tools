@@ -5,7 +5,7 @@
 %   input.
 %
 %
-%   Future: allow csv for input
+%   Future: allow comma sep values for input
 
 %% Changeables / initialize
 close all;
@@ -37,77 +37,12 @@ fg_fromtrk = [];
 
 switch tag
     case 'L'
-        for ss = 1:length(Ltracks)
-            trk_file = Ltracks{ss};
-            if exist(trk_file, 'file')
-
-                [header,tracks] = trk_read(trk_file);
-                header.vox_to_ras = ni_dwi.qto_xyz;
-                transf_mat = header.vox_to_ras;
-                for ii = 1:3
-                    transf_mat(:,ii) = transf_mat(:, ii)./header.voxel_size(ii);
-                end
-
-                % Create FG structure that can be visualized with AFQ tools
-                % We apply a transofrmatrion matrix to make sure the tracks are in the
-                % original dMRI space
-                trk_name=regexp(trk_file, '/', 'split');
-                fg_fromtrk(ss).name = regexprep(trk_name{end}, '_R.trk', '');
-                fg_fromtrk(ss).colorRgb = [20 90 200];
-                fg_fromtrk(ss).thickness = 0.5;
-                fg_fromtrk(ss).visible = 1;
-                fg_fromtrk(ss).seeds = [];
-                fg_fromtrk(ss).seedRadius = 0;
-                fg_fromtrk(ss).fibers = cell(length(tracks),1);
-                for kk = 1:length(tracks)
-                    this_strm = transf_mat*[tracks(kk).matrix ones(length(tracks(kk).matrix),1)]';
-                    fg_fromtrk(ss).fibers{kk} = this_strm(1:3,:);
-                    clear this_strm
-                end
-                clear header tracks
-            else
-                warningMessage = sprintf('Warning: Track file does not exist:\n%s', trk_file);
-            return;
-            end
-        end
+        [fg_fromtrk]=create_trkstruct(ni_dwi, Ltracks);
         g = gifti(fullfile(bids_path,['sub-' sub_label],'pial_desc-qsiprep.L.surf.gii'));
 
-    case R'
-        for ss = 1:length(Rtracks)
-            trk_file = Rtracks{ss};
-            if exist(trk_file, 'file')
-
-                [header,tracks] = trk_read(trk_file);
-                header.vox_to_ras = ni_dwi.qto_xyz;
-                transf_mat = header.vox_to_ras;
-                for ii = 1:3
-                    transf_mat(:,ii) = transf_mat(:, ii)./header.voxel_size(ii);
-                end
-
-                % Create FG structure that can be visualized with AFQ tools
-                % We apply a transofrmatrion matrix to make sure the tracks are in the
-                % original dMRI space
-                trk_name=regexp(trk_file, '/', 'split');
-                fg_fromtrk(ss).name = regexprep(trk_name{end}, '_R.trk', '');
-                fg_fromtrk(ss).colorRgb = [20 90 200];
-                fg_fromtrk(ss).thickness = 0.5;
-                fg_fromtrk(ss).visible = 1;
-                fg_fromtrk(ss).seeds = [];
-                fg_fromtrk(ss).seedRadius = 0;
-                fg_fromtrk(ss).fibers = cell(length(tracks),1);
-                for kk = 1:length(tracks)
-                    this_strm = transf_mat*[tracks(kk).matrix ones(length(tracks(kk).matrix),1)]';
-                    fg_fromtrk(ss).fibers{kk} = this_strm(1:3,:);
-                    clear this_strm
-                end
-                clear header tracks
-            else
-                warningMessage = sprintf('Warning: Track file does not exist:\n%s', trk_file);
-            return;
-            end
-        end
+    case 'R'
+        [fg_fromtrk]=create_trkstruct(ni_dwi, Rtracks);
         g = gifti(fullfile(bids_path,['sub-' sub_label],'pial_desc-qsiprep.R.surf.gii'));
-
 end
 
 %% Glass brain render
@@ -121,6 +56,6 @@ for ii=1:length(fg_fromtrk)
     AFQ_RenderFibers(fg_fromtrk(ii),'numfibers',300,'color',color{ii},'newfig', false);
 end
 
-render_dbs_lead(coords, .75, 46.6, 0)
+render_dbs_lead(coords, .75, 46.6, 1)
 addElectrode(coords, 'b', 0, 0.2)
 
