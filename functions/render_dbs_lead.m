@@ -27,7 +27,7 @@ else
     spline_points=[extrap_point; spline_points];
 end
 
-upsample_factor=1000;
+upsample_factor=200;
 spline_points=upsample_points(spline_points, upsample_factor, 'plot');
 set(findall(gcf,'-property','FontSize'),'FontSize',24)
 %% Create lead

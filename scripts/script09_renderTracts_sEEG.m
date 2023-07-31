@@ -4,7 +4,6 @@
 %   Script to render one sEEG electrode lead with tracks. Prompts for user
 %   input.
 %
-%
 %   Future: allow comma sep values for input
 
 %% Changeables / initialize
@@ -17,32 +16,29 @@ subnum=1;
 
 [my_subject_labels,bids_path] = dmri_subject_list();
 sub_label = my_subject_labels{subnum};
+[sub_label,bids_path, ~, tracks] = limbic_subject_library(subnum);
 
-% Path to DSI studio - where your .trk files should be located
-dsipath=fullfile(bids_path,['sub-' sub_label], 'dsi_studio');
-[Ltracks, Rtracks]=getDSItracks(dsipath);
-[Ltracks, Rtracks]=gz_unzip(Ltracks, Rtracks);
 
 % Path to electrodes.tsv file
-electrode_fn=fullfile(bids_path, ['sub-' sub_label], ['sub-' sub_label '_ses-ieeg01_space-T1w_desc-qsiprep_electrodes.tsv']);
+electrode_fn=fullfile(bids_path, 'derivatives', 'qsiprep', ['sub-' sub_label], ['sub-' sub_label '_ses-ieeg01_space-T1w_desc-qsiprep_electrodes.tsv']);
 elStruct=sEEGsorter(electrode_fn);
 [coords, tag]=plot_which_el(elStruct);
 
 %% Load Files
 
-%Load DWI file
-dwi_file = fullfile(bids_path, ['sub-' sub_label],'ses-compact3T01','dwi',['sub-' sub_label '_ses-compact3T01_acq-diadem_space-T1w_desc-preproc_dwi.nii.gz']);
+%Load DWI file 
+dwi_file = fullfile(bids_path, 'derivatives', 'qsiprep', ['sub-' sub_label],'ses-compact3T01','dwi',['sub-' sub_label '_ses-compact3T01_acq-diadem_space-T1w_desc-preproc_dwi.nii.gz']);
 ni_dwi = niftiRead(dwi_file);
 fg_fromtrk = [];
 
 switch tag
     case 'L'
-        [fg_fromtrk]=create_trkstruct(ni_dwi, Ltracks);
-        g = gifti(fullfile(bids_path,['sub-' sub_label],'pial_desc-qsiprep.L.surf.gii'));
+        [fg_fromtrk]=create_trkstruct(ni_dwi, tracks);
+        g = gifti(fullfile(bids_path,'derivatives', 'freesurfer', ['sub-' sub_label],'pial_desc-qsiprep.L.surf.gii'));
 
     case 'R'
-        [fg_fromtrk]=create_trkstruct(ni_dwi, Rtracks);
-        g = gifti(fullfile(bids_path,['sub-' sub_label],'pial_desc-qsiprep.R.surf.gii'));
+        [fg_fromtrk]=create_trkstruct(ni_dwi, tracks);
+        g = gifti(fullfile(bids_path,'derivatives', 'qsiprep',['sub-' sub_label],'pial_desc-qsiprep.R.surf.gii'));
 end
 
 %% Glass brain render
@@ -56,6 +52,6 @@ for ii=1:length(fg_fromtrk)
     AFQ_RenderFibers(fg_fromtrk(ii),'numfibers',300,'color',color{ii},'newfig', false);
 end
 
-render_dbs_lead(coords, .75, 46.6, 1)
-addElectrode(coords, 'b', 0, 0.2)
+render_dbs_lead(coords, .75, 46.6, 0)
+%addElectrode(coords, 'b', 0, 0.2)
 

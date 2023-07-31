@@ -1,14 +1,14 @@
 %   Jordan Bilderbeek June 19 2023
-
+%
 %   This script is very similar to script03_renderTractswithElectrodes. We
 %   load the tracks via DSI studio, then plot in a glass brain render.
 %   However, because we are plotting DBS leads instead of sEEG we can
 %   simplify the script a fair bit; we dont need to perform any complex
 %   sorting.
-
+%
 %   Because we use the CTMR method to find the positions, we load XYZ
 %   differently; we also assume the number of electrodes per DBS lead. 
-
+%
 %   The call to render_dbs_lead will also be different.
 
 %% Initialize

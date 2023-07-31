@@ -33,7 +33,7 @@ for ii=1:size(coordinates, 1)
     [x,y,z]=sphere;
     surf(x*r+coordinates(ii, 1), y*r+coordinates(ii,2), z*r+coordinates(ii, 3), 'FaceColor', color, 'EdgeColor', 'none');
     alpha(a);
-    %text(coordinates(ii, 1), coordinates(ii,2), r+coordinates(ii, 3), num2str(pos(ii)), 'Color','k','FontSize',14, 'HorizontalAlignment','center','VerticalAlignment','middle')
+    text(coordinates(ii, 1), coordinates(ii,2), r+coordinates(ii, 3), num2str(pos(ii)), 'Color','k','FontSize',14, 'HorizontalAlignment','center','VerticalAlignment','middle')
 end
 xlabel('x'), ylabel('y'), zlabel('z');
 

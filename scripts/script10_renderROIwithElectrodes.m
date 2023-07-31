@@ -1,8 +1,10 @@
 setMyMatlabPaths;
 addpath(genpath(pwd));
-subnum=3;
+subnum=5;
 
 [my_subject_labels,bids_path] = dmri_subject_list();
+
+
 sub_label = my_subject_labels{subnum};
 
 close all
@@ -11,7 +13,6 @@ close all
 figure(1);
 g = gifti(fullfile(bids_path,'BIDS_subjectsRaw', 'derivatives', 'qsiprep', ['sub-' sub_label],'pial_desc-qsiprep.R.surf.gii')); %Will need to do a surface of both sides
 h = ieeg_RenderGifti(g); 
-
 
 %% Plot ROI
 
@@ -30,4 +31,4 @@ render_dbs_lead(elecmatrix(9:12, :), .75, 46.6, 0)
 render_dbs_lead(elecmatrix(13:16, :), 1.5, 32.6, 0) 
 loc_view(90,0)
 
-addElectrode(elecmatrix(9:16, :), 'b', 0, .2, 9:16); %add blue rendering
+addElectrode(elecmatrix(9:16, :), 'b', 0, .2, [13 14 15 16 9 10 11 12]); %add blue rendering

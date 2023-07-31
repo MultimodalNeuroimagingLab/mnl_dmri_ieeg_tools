@@ -9,7 +9,7 @@ function [Ltracks, Rtracks]=getDSItracks(path)
 
 %% getDSItracks
 
-pattern=fullfile(path, '*.trk.gz'); %Search for .trk.gz
+pattern=fullfile(path, '*.trk'); %Search for .trk.gz
 theFiles=dir(pattern);
 
 Ltracks={};
