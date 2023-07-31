@@ -20,18 +20,13 @@ function fg_fromtrk=strm_distance(fg_fromtrk, roi)
 %       point within track. 
 
 
-%% l2norm
-function dist=vecl2norm(mat,varargin)
-    mat=sum(abs(mat).^2, varargin{:});
-    dist=sqrt(mat);
-end
 
-%% Calculate euclidean distance via l2norm
+%% Calculate euclidean distance
 roi=roi';
 for ii=1:length(fg_fromtrk) %Calculate distance for all
     for jj=1:length(fg_fromtrk(ii).fibers)
         [~,M]=size(fg_fromtrk(ii).fibers{jj});
-        dist=vecl2norm(bsxfun(@minus, fg_fromtrk(ii).fibers{jj}, roi), 1);  
+        dist=vecnorm(bsxfun(@minus, fg_fromtrk(ii).fibers{jj}, roi));  
         fg_fromtrk(ii).distance{jj}=reshape(dist, M, []);
         fg_fromtrk(ii).mindist{jj}=min(dist);
     end
