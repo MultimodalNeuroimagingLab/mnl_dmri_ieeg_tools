@@ -33,6 +33,7 @@ for ii=1:length(fg_fromtrk) %Calculate distance for all
         [~,M]=size(fg_fromtrk(ii).fibers{jj});
         dist=vecl2norm(bsxfun(@minus, fg_fromtrk(ii).fibers{jj}, roi), 1);  
         fg_fromtrk(ii).distance{jj}=reshape(dist, M, []);
+        fg_fromtrk(ii).mindist{jj}=min(dist);
     end
 end
 
