@@ -6,7 +6,7 @@ function fg_fromtrk=strm_distance(fg_fromtrk, roi)
 %   euclidean distance with roi (electrode position of interest). Save in
 %   fg_fromtrk struct. 
 %
-%   Input: 
+%   INPUTS: 
 %       a) fg_fromtrk - track structure generated with all tracks and
 %       streamlines. Can index via fg_fromtrk(track).fibers{strmln} 
 %       which will give 3xN array of streamline points for the specific
@@ -14,7 +14,7 @@ function fg_fromtrk=strm_distance(fg_fromtrk, roi)
 %       b) roi - typically a 1x3 xyz of electrode centroid. Can be any
 %       other region of interest. 
 %
-%   Output: 
+%   OUTPUTS: 
 %       a) fg_fromtrk - .distance is added to the structures with the
 %       euclidean distance for every track and each individual streamline
 %       point within track. 

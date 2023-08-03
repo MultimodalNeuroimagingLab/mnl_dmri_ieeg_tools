@@ -1,19 +1,24 @@
 function [elStruct] = sEEGsorter(filename)
-%   Jordan Bilderbeek July 21 2023
+%   Jordan Bilderbeek July 21 2023; updated August 3
 %
 %   Function that takes an electrodes.tsv file (sEEG) and sorts based on
 %   probe names. We format the .tsv into elStruct which has fields
 %   elStruct.name and elStruct.positions which contain the name
 %   and the xyz positions.
 %
-%   Inputs: filename of tsv file
-%   Outputs: 1xN struct array with fields name and position. Can index
-%   throughout the structure via elStruct(1).name and elStruct(1).positions
-%   to get the first electrode name and xyz coordinates
-
-%   When plotting sEEG leads we can do something along the lines of:
+%   INPUTS:
+%       A) filename: fullpath of electrodes.tsv file (in correct space)
+%       usually the file with qsiprep tag. 
+%
+%   OUTPUTS:
+%       A) elStruct: 1xN struct array with fields name and position. Can
+%   index throughout the structure via elStruct(1).name and
+%   elStruct(1).positions to get the first electrode name and xyz
+%   coordinates
+%
+%   SUGGESTED USE:
 %   for ii=1:length(elStruct)
-%       render_dbs_lead/render_seeg_lead (elStruct(ii).positions)
+%       render_dbs_lead(elStruct(ii).positions);
 %   end
 
 %% sEEGsorter
