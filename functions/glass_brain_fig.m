@@ -4,7 +4,7 @@ function glass_brain_fig(subnum)
 %   Creates glass brain rendering figure for one subject. Simply input
 %   subnum and rendering will run. EST 20min/subject on an upsample factor
 %   of 1000 (in render_dbs_lead) call. Ensure pathing is correct for your
-%   subject. 
+%   subject. Essentially the same as script04 but as a function.
 %
 %   INPUTS:
 %       a) subnum - numerical value (ex:1) for your subject number in
