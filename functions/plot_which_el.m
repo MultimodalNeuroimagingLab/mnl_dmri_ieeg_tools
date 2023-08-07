@@ -5,6 +5,24 @@ function [coords, tag]=plot_which_el(elStruct)
 %   Function to prompt user input for which electrode based on electrode
 %   name. Will search through the structure based on input and index the
 %   coords out.
+
+%   INPUTS:
+%       a) elStruct - electrode structure output from sEEG sorter
+%
+%   OUTPUTS:
+%       a) coords - Nx3 xyz of coords to all of the electrode contacts on
+%       one lead. can be used as an input into render_dbs_lead
+%       b) tag - takes the mean of xy components and determins which
+%       hemisphere we are in. as most sEEG are bilateral this is useful
+%
+%   USAGE: coords=plot_which_el(mysEEGsortedStruct)
+%          
+%          [coords, tag]=plot_which_el(mysEEGsortedStruct)
+%           if tag='L'
+%               render left gifti
+%           else
+%               render right gifti
+%           end
 %
 
 %% plot_which_el
