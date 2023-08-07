@@ -19,7 +19,8 @@ function [total_distance] = trk_distance(x, y, z, plot)
 %       d) plot - optional call if plot==1 in order to validate a proper
 %       spline fitting
 %
-%
+%   OUTPUTS: total_distance - the total euclidean distance between all of
+%   the xyz point array
 
 %% trk_distance
 
