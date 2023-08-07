@@ -1,10 +1,8 @@
 setMyMatlabPaths;
 addpath(genpath(pwd));
-subnum=5;
+subnum=1;
 
 [my_subject_labels,bids_path] = dmri_subject_list();
-
-
 sub_label = my_subject_labels{subnum};
 
 close all
@@ -16,14 +14,17 @@ h = ieeg_RenderGifti(g);
 
 %% Plot ROI
 
-hippocampus=niftiRead(fullfile(bids_path,'BIDS_subjectsRaw','derivatives', 'freesurfer', ['sub-' sub_label], sub_label, 'mri', 'hippocampus_amygdala_lr_preproc.nii.gz' ));
-renderROI(hippocampus, -32482);
+%hippocampus=niftiRead(fullfile(bids_path,'BIDS_subjectsRaw','derivatives', 'freesurfer', ['sub-' sub_label], sub_label, 'mri', 'hippocampus_amygdala_lr_preproc.nii.gz' ));
+%renderROI(hippocampus, -32482);
 % -32676 is L hippocampus; -32482 is R hippocampus
+
+R_AD=niftiRead(fullfile(bids_path, 'BIDS_subjectsRaw', 'derivatives', 'leaddbs', ['sub-' sub_name], 'atlases', 'Morel_medium_5vox', 'rh', 'AD_preproc.nii')); 
+
 
 %% Adding electrodes
 
 elecmatrix=readtable(fullfile(bids_path,'BIDS_subjectsRaw','derivatives', 'qsiprep', ['sub-' sub_label], ['sub-' sub_label '_ses-mri01_space-T1w_desc-qsiprep_electrodes.tsv']), 'FileType', 'text', 'Delimiter', '\t');
-elecmatrix=table2array(elecmatrix);
+elecmatrix = [elecmatrix.x elecmatrix.y elecmatrix.z];
 
 %Medtronic 3387 RC+S (total length 57.1mm - extension 46.6mm). R=.75mm
 render_dbs_lead(elecmatrix(9:12, :), .75, 46.6, 0)
