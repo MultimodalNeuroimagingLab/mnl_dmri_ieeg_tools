@@ -2,16 +2,22 @@ function all_electrodes=retrieve_row_by_labels(labels, labelstable)
   
 %   Jordan Bilderbeek Jun 8 2023
 %
-%   Inputs: labels, labelstable
-%       labels are the electrode labels (such as LA1, LA2, LA3). we pull
-%       the labels from retrieve_row_key_letter function which tells us
-%       which electrode labels are in out regions of interest
-%       labelstable is the tsv table we pull from with the table
+%   Function that returns full electrode list for a given roi. If you give
+%   input of a label (such as LA3) the output will be LA1-LAn.
 %
-%       result is the full electrode list for roi... i.e if you give LA3 as
-%       input the output will be LA1-LA
-%   Usage: [electrode]=retrieve_row_key_letters(row, loc_info)
+%   INPUTS: 
+%       a) labels - labels are the electrode labels (ex: LA1, LA2, LA3).
+%       we pull the labels from retrieve_row_key_letter function which 
+%       tells us which electrode labels are in out regions of interest.
+%       
+%       b) labelstable- labelstable is the tsv table that houses all the
+%       electrode contact information and destrieux labels
+%
+%   OUTPUTS: all_electrodes=
+%
+%   USAGE: [electrode]=retrieve_row_key_letters(row, loc_info)
 %   
+%% retrieve_row_by_labels
 
 %all_electrodes=array2table(zeros(20, numel(labels)));
 labels=table2array(labels);
