@@ -25,9 +25,16 @@ function [valueMatrix, xyPairs, numValues] = analyzeStruct(myStruct, xDim, yDim)
     % Iterate through x and y dimensions
     for x = 1:xDim
         for y = 1:yDim
+            angle=[];
             % Check if the value is not empty and set the corresponding
             % position in the logical matrix
-            if ~isempty(myStruct(x).structsublayer(y).value)
+            for jj=1:length(myStruct(x).trackstats(y).angle)
+                tmp=myStruct(x).trackstats(y).angle{jj};
+                angle=[tmp; angle];
+            end
+            
+            angle=rmmissing(angle);
+            if ~isempty(angle)
                 valueMatrix(x, y) = true;
             end
         end
@@ -37,4 +44,7 @@ function [valueMatrix, xyPairs, numValues] = analyzeStruct(myStruct, xDim, yDim)
     [xValues, yValues] = find(valueMatrix);
     xyPairs = [xValues, yValues];
     numValues = numel(xValues);
+    
+    disp('Value Matrix:')
+    disp(valueMatrix)
 end
