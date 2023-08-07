@@ -8,15 +8,15 @@ function [fg_fromtrk]=create_trkstruct(ni_dwi, tracksin)
 %   over the .trk and add the neccesary components to the structure. 
 %   
 %   INPUTS:
-%   a) ni_dwi - loaded struct of a nifti diffusion weighted image (output
-%   from niftiRead)
-%   b) tracksin - a cell array in which each cell contains the fullpath to
-%   a .trk file from DSI studio output
+%       a) ni_dwi - loaded struct of a nifti diffusion weighted image (output
+%       from niftiRead)
+%       b) tracksin - a cell array in which each cell contains the fullpath to
+%       a .trk file from DSI studio output
 %
 %   OUTPUTS:
-%   a) fg_fromtrk - struct that contains all the loaded tracks in the
-%   correct space, along with other information (name, fibers, colors) that
-%   correspond to each track
+%       a) fg_fromtrk - struct that contains all the loaded tracks in the
+%       correct space, along with other information (name, fibers, colors) that
+%       correspond to each track
 
 
 
