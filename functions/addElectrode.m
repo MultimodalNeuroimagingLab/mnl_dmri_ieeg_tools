@@ -8,18 +8,18 @@ function addElectrode(elecmatrix, color, fitspline, a, pos)
 %   spread
 %   
 %   INPUTS:
-%   a) elecmatrix - matrix of points with x y z positions corresponding to
-%   the centroid of an electrode contact
-%   b) color - color of sphere
-%   c) fitspline - if fitspline==1; we will fit a spline between the
-%   centroid positions and plot the line between them. this is not needed
-%   if we are running render_dbs_lead function call, but can be useful for
-%   quick illustration
-%   d) a - alpha of the dots
-%   e) pos - list of character tags that can be added as text near the
-%   contacts. For example ('LA1', 'LA2', 'LA3', 'LA4') will add text to the
-%   corresponding contacts (as long as they are passed in the same order as
-%   elecmatrix. 
+%       a) elecmatrix - matrix of points with x y z positions corresponding to
+%       the centroid of an electrode contact
+%       b) color - color of sphere
+%       c) fitspline - if fitspline==1; we will fit a spline between the
+%       centroid positions and plot the line between them. this is not needed
+%       if we are running render_dbs_lead function call, but can be useful for
+%       quick illustration
+%       d) a - alpha of the dots
+%       e) pos - list of character tags that can be added as text near the
+%       contacts. For example ('LA1', 'LA2', 'LA3', 'LA4') will add text to the
+%       corresponding contacts (as long as they are passed in the same order as
+%       elecmatrix. 
 %
 %% Spline Fitting
 
