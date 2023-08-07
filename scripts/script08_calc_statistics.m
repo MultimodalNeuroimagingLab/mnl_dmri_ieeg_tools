@@ -1,4 +1,4 @@
-%   Jordan Bilderbeek July 19 2023
+%   Jordan Bilderbeek July 19 2023; updated August 3
 %
 %   Script to calculate statistics (distance and angles) for one subject.
 %   Change subnum to move through the subject labels. 
@@ -17,10 +17,11 @@
 %   cannot fit the PC axis and calculate the subsequent angle. 
 
 
-%% calc statistics - distance and angle (RIGHT SIDE - el 9:16)
-% this assumes we have the right side fg_fromtrk struct and are using
-% elecmatrix(9:16, :)
-subnum=3;
+%% Load all data and get tracks
+clear all;
+close all;
+
+subnum=5;
 [my_subject_labels,bids_path] = dmri_subject_list();
 sub_label = my_subject_labels{subnum};
 dsipath=fullfile(bids_path,'BIDS_subjectsRaw', 'derivatives','dsistudio',['sub-' sub_label]);
@@ -31,44 +32,63 @@ dsipath=fullfile(bids_path,'BIDS_subjectsRaw', 'derivatives','dsistudio',['sub-'
 switch subnum
     case 2
         dwi_file = fullfile(bids_path, 'BIDS_subjectsRaw', 'derivatives', 'qsiprep', ['sub-' sub_label],'ses-compact3T01','dwi',['sub-' sub_label '_ses-compact3T01_acq-diadem_space-T1w_desc-preproc_dwi.nii.gz']);
+    case 5
+        dwi_file = fullfile(bids_path, 'BIDS_subjectsRaw', 'derivatives', 'qsiprep', ['sub-' sub_label],'ses-compact3T01','dwi',['sub-' sub_label '_ses-compact3T01_acq-diadem_space-T1w_desc-preproc_dwi.nii.gz']);
     case 4
         dwi_file = fullfile(bids_path, 'BIDS_subjectsRaw', 'derivatives', 'qsiprep', ['sub-' sub_label],'ses-mri01','dwi',['sub-' sub_label '_ses-mri01_acq-diadem_space-T1w_desc-preproc_dwi.nii.gz']);
     otherwise
         dwi_file = fullfile(bids_path, 'BIDS_subjectsRaw', 'derivatives', 'qsiprep', ['sub-' sub_label],'ses-mri01','dwi',['sub-' sub_label '_ses-mri01_rec-none_run-01_space-T1w_desc-preproc_dwi.nii.gz']);
 end
 
-%DWI data
+% DWI data
 ni_dwi = niftiRead(dwi_file);
 [fg_fromtrk]=create_trkstruct(ni_dwi, Rtracks);
 
-%Electrode Positions
-electrodepositions = fullfile(bids_path,'BIDS_subjectsRaw','derivatives', 'qsiprep', ['sub-' sub_label], ['sub-' sub_label '_ses-mri01_space-T1w_desc-qsiprep_electrodes.tsv']);
-elecmatrix=readtable(electrodepositions, 'FileType', 'text', 'Delimiter', '\t');
-elecmatrix=table2array(elecmatrix);
+% Electrode positions
+electrode_tsv=readtable(fullfile(bids_path,'BIDS_subjectsRaw','derivatives', 'qsiprep', ['sub-' sub_label], ['sub-' sub_label '_ses-mri01_space-T1w_desc-qsiprep_electrodes.tsv']), 'FileType', 'text', 'Delimiter', '\t');
+elecmatrix = [electrode_tsv.x electrode_tsv.y electrode_tsv.z];
+%% Custom ROI - load ROIs
 
-%Custom ROI
-roifile=fullfile(bids_path,'BIDS_subjectsRaw','derivatives', 'freesurfer', ['sub-' sub_label], sub_label, 'mri', 'hippocampus_amygdala_lr_preproc.nii.gz');
+%Hippocampus segmentations
+hippocampus=fullfile(bids_path,'BIDS_subjectsRaw','derivatives', 'freesurfer', ['sub-' sub_label], sub_label, 'mri', 'hippocampus_amygdala_lr_preproc.nii.gz' );
 hippocampalsegR=-32482;
-
-for ii=1:length(elecmatrix)/2
-    el(ii+8).name=['R-Electrode ' num2str(ii+8)];
-    fg_fromtrk=strm_distance(fg_fromtrk, elecmatrix(ii+8, :));
-    el(ii+8).trackstats = strm_angle(fg_fromtrk,elecmatrix(ii+8, :), 4);
-    el(ii+8).hippocampus_R_dist=roi_distance(elecmatrix(ii+8, :), roifile, hippocampalsegR);
-end
-
-%% calc statistics - distance and angle (LEFT SIDE - el 1:8)
-disp('Now calculating left side')
-[fg_fromtrk]=create_trkstruct(ni_dwi, Ltracks);
-
 hippocampalsegL=-32676;
 
-for ii=1:length(elecmatrix)/2
-    el(ii).name=['L-Electrode ' num2str(ii)];
-    fg_fromtrk=strm_distance(fg_fromtrk, elecmatrix(ii, :));
-    el(ii).trackstats = strm_angle(fg_fromtrk,elecmatrix(ii, :), 4);
-    el(ii).hippocampus_L_dist=roi_distance(elecmatrix(ii, :), roifile, hippocampalsegL);
+%ANT segmentations for L ventral (AV), dorsal (AD), and medial (AM)
+l_AV=fullfile(bids_path, 'BIDS_subjectsRaw', 'derivatives', 'leaddbsinqsi', ['sub-' sub_label], 'lAV.nii');
+l_AD=fullfile(bids_path, 'BIDS_subjectsRaw', 'derivatives', 'leaddbsinqsi', ['sub-' sub_label], 'lAD.nii');
+l_AM=fullfile(bids_path, 'BIDS_subjectsRaw', 'derivatives', 'leaddbsinqsi', ['sub-' sub_label], 'lAM.nii');
 
+%ANT segmentations for R ventral (AV), dorsal (AD), and medial (AM)
+r_AV=fullfile(bids_path, 'BIDS_subjectsRaw', 'derivatives', 'leaddbsinqsi', ['sub-' sub_label], 'rAV.nii');
+r_AD=fullfile(bids_path, 'BIDS_subjectsRaw', 'derivatives', 'leaddbsinqsi', ['sub-' sub_label], 'rAD.nii');
+r_AM=fullfile(bids_path, 'BIDS_subjectsRaw', 'derivatives', 'leaddbsinqsi', ['sub-' sub_label], 'rAM.nii');
+
+%% Compute distances and angle for right side
+
+electrodes={'RA1', 'RA2', 'RA3', 'RA4', 'RH1', 'RH2', 'RH3', 'RH4' }; %select right side electrodes
+for ii=1:length(electrodes)
+    el(ii+8).name=electrodes{ii};
+    fg_fromtrk=strm_distance(fg_fromtrk, elecmatrix(ismember(electrode_tsv.label,electrodes{ii}), :));
+    el(ii+8).trackstats = strm_angle(fg_fromtrk,elecmatrix(ismember(electrode_tsv.label,electrodes{ii}), :), 4);
+    el(ii+8).hippocampus_r_dist=roi_distance(elecmatrix(ismember(electrode_tsv.label,electrodes{ii}), :), hippocampus, hippocampalsegR);
+    el(ii+8).AV_r_dist=roi_distance(elecmatrix(ismember(electrode_tsv.label,electrodes{ii}), :), r_AV, 'Ventral ANT');
+    el(ii+8).AD_r_dist=roi_distance(elecmatrix(ismember(electrode_tsv.label,electrodes{ii}), :), r_AD, 'Dorsal ANT');
+    el(ii+8).AM_r_dist=roi_distance(elecmatrix(ismember(electrode_tsv.label,electrodes{ii}), :), r_AM, 'Medial ANT');
+end
+
+%% Compute distances and angle for left side
+
+[fg_fromtrk]=create_trkstruct(ni_dwi, Ltracks); %recompute with left tracks
+electrodes={'LA1', 'LA2', 'LA3', 'LA4', 'LH1', 'LH2', 'LH3', 'LH4' };
+for ii=1:length(electrodes)
+    el(ii).name=electrodes{ii};
+    fg_fromtrk=strm_distance(fg_fromtrk, elecmatrix(ismember(electrode_tsv.label,electrodes{ii}), :));
+    el(ii).trackstats = strm_angle(fg_fromtrk,elecmatrix(ismember(electrode_tsv.label,electrodes{ii}), :), 4);
+    el(ii).hippocampus_l_dist=roi_distance(elecmatrix(ismember(electrode_tsv.label,electrodes{ii}), :), hippocampus, hippocampalsegL);
+    el(ii).AV_l_dist=roi_distance(elecmatrix(ismember(electrode_tsv.label,electrodes{ii}), :), l_AV, 'Ventral ANT');
+    el(ii).AD_l_dist=roi_distance(elecmatrix(ismember(electrode_tsv.label,electrodes{ii}), :), l_AD, 'Dorsal ANT');
+    el(ii).AM_l_dist=roi_distance(elecmatrix(ismember(electrode_tsv.label,electrodes{ii}), :), l_AM, 'Medial ANT');
 end
 
 %% save statistics
