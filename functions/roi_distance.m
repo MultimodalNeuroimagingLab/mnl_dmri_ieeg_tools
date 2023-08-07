@@ -31,7 +31,7 @@ function dist=vecl2norm(mat,varargin) %euclidean distance function, can also use
 end
 
 nifti=niftiRead(roifile);
-if isstring(seg)
+if ischar(seg)
     % if seg is a string, we assume that the entire nifti is one
     % segmentation, thus we want nonzero datapoints
     [rr,cc,vv] = ind2sub(size(nifti.data),find(nifti.data>0));
@@ -49,14 +49,9 @@ h=AFQ_RenderRoi(roi,[0.6824 0.1255 0.0706],'mesh','surface');
 
 in=intriangulation(h.Vertices, h.Faces, elecxyz); %call to external triangulation function
 if in==1
-    if isstring(seg)
-        dist=['Electrode inside leaddbs: ' seg]; %based on preprocessing, we are using leaddbs for individual nifti segmentations
-    else
-        dist='Electrode inside freesurfer-qsi Hippocampus'; %based on preprocessing, we use freesurfer for large multi-seg nifti files
-    end
-
+    dist=0;
 elseif in==-1
-    dist='Unable to triangulate position'; %should never trigger due to number of vertices and faces
+    dist=NaN; %should never trigger due to number of vertices and faces
 else
     elecxyz=elecxyz';
     dist=vecl2norm(bsxfun(@minus, h.Vertices', elecxyz), 1);   %calculate distance via l2 norm if not inside (or unable to triangulate)
