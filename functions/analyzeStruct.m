@@ -6,17 +6,17 @@ function [valueMatrix, xyPairs, numValues] = analyzeStruct(myStruct, xDim, yDim)
 %   substructures contain variables or are empty
 %   
 %   INPUTS:
-%   a) myStruct - your structure
-%   b) xDim - dimensions of myStruct(x)
-%   c) yDim - dimensions of myStruct.substruct(y)
+%       a) myStruct - your structure
+%       b) xDim - dimensions of myStruct(x)
+%       c) yDim - dimensions of myStruct.substruct(y)
 %
 %   OUTPUTS:
-%   a) valueMatrix - logical matrix with dimensions of X by Y which is true
-%   for the given x and y where the substruct is nonempty
-%   b) xyPairs - pairs of indexable x and y values (used for iterating
-%   through structure in for loop efficiently)
-%   c) numValues - the number of indexable x and y values (used for length
-%   of iterating through struct)
+%       a) valueMatrix - logical matrix with dimensions of X by Y which is true
+%       for the given x and y where the substruct is nonempty
+%       b) xyPairs - pairs of indexable x and y values (used for iterating
+%       through structure in for loop efficiently)
+%       c) numValues - the number of indexable x and y values (used for length
+%       of iterating through struct)
 %
     
 %% analyzeStruct
