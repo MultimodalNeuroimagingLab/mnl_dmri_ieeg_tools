@@ -1,22 +1,29 @@
 function list=retrieve_row_key_letter_v2(table, alpha_cell)
     
 %   Jordan Bilderbeek June 13 2023
-
+%
 %   Re-write of retreve_row_key_letter. Uses regexprep to eliminate
 %   matching problems (such as LA and LAL being clustered into the same bin
-%   as they have the same LA prefix). Code is self-explanatory (can see
-%   prev version for methodology if needed). 
-
+%   as they have the same LA prefix).
+%
 %   We make the assumption that there exists an electrode AA1, AA2 to AAn (on a lead!) 
 %   such that n is a CONTINUOUS positive integer. If, depending on
 %   TSV curation, we start skipping electrodes instead of assigning NaN's
 %   this would fail (ex. suppose we have AA1-AA5 and AA9-AA12; we would
 %   create AA1-AA12 which would give false locations to the plotter). 
 %   
+%   INPUTS:
+%       a) table - loaded table from readtable(filepath)
+%       b) alpha_cell - cell of alphanumerics on a lead
+%
+%   OUTPUTS:
+%       a) list - list of contacts we want to plot from a specific region
+%
+    
 
 %% Sorting
-unique_alphas=unique(table.name); %needed?
-unique_alpha_cell=unique(alpha_cell); %needed?
+unique_alphas=unique(table.name);
+unique_alpha_cell=unique(alpha_cell); 
 unique_alpha_cell=table2cell(unique_alpha_cell);
 processed_alphas={};
 
