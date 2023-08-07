@@ -13,7 +13,7 @@ function all_electrodes=retrieve_row_by_labels(labels, labelstable)
 %       b) labelstable- labelstable is the tsv table that houses all the
 %       electrode contact information and destrieux labels
 %
-%   OUTPUTS: all_electrodes=
+%   OUTPUTS: all_electrodes - list of electrodes from AA1-AAn
 %
 %   USAGE: [electrode]=retrieve_row_key_letters(row, loc_info)
 %   
