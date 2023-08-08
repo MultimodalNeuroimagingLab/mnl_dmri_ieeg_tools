@@ -30,7 +30,9 @@
 %
 
 %% create_con_matrix
-subnum=1;
+clear all;
+close all;
+subnum=5;
 [sub_label,bids_path, electrodes, tracks] = limbic_subject_library(subnum);
 
 %read electrode tsv
@@ -77,7 +79,7 @@ connectmat.connectivitysum=connectivitysum;
 connectmat.labels=labels;
 connectmat.subj=['sub-' sub_label];
 connectmat.electrode=electrodes;
-savepath=fullfile(bids_path, 'derivatives','stats',['sub-' sub_label], ['sub-' sub_label '_ses-ieeg01_dist_angle_stats.mat']);
+savepath=fullfile(bids_path, 'derivatives','stats',['sub-' sub_label], ['sub-' sub_label '_connectivitymat.mat']);
 save(savepath, 'connectmat');
 
 %% optional -- plotting for the surface
@@ -113,4 +115,5 @@ save(savepath, 'connectmat');
 % xlabel('PCA1 (au)');
 % ylabel('PCA2 (au)');
 % zlabel('PCA3 (au)');
+
 
