@@ -34,7 +34,7 @@ fg_fromtrk = [];
 switch tag
     case 'L'
         [fg_fromtrk]=create_trkstruct(ni_dwi, tracks);
-        g = gifti(fullfile(bids_path,'derivatives', 'freesurfer', ['sub-' sub_label],'pial_desc-qsiprep.L.surf.gii'));
+        g = gifti(fullfile(bids_path,'derivatives', 'qsiprep', ['sub-' sub_label],'pial_desc-qsiprep.L.surf.gii'));
 
     case 'R'
         [fg_fromtrk]=create_trkstruct(ni_dwi, tracks);
@@ -52,6 +52,8 @@ for ii=1:length(fg_fromtrk)
     AFQ_RenderFibers(fg_fromtrk(ii),'numfibers',300,'color',color{ii},'newfig', false);
 end
 
-render_dbs_lead(coords, .75, 46.6, 0)
-%addElectrode(coords, 'b', 0, 0.2)
+for ii=1:length(coords)
+    render_dbs_lead(coords(ii).positions, .75, 46.6, 0)
+    addElectrode(coords(ii).positions, 'b', 0, 0.2)
+end
 

@@ -10,8 +10,8 @@ function [coords, tag]=plot_which_el(elStruct)
 %       a) elStruct - electrode structure output from sEEG sorter
 %
 %   OUTPUTS:
-%       a) coords - Nx3 xyz of coords to all of the electrode contacts on
-%       one lead. can be used as an input into render_dbs_lead
+%       a) coords - struct that can be indexed via coords(#);
+%       coords(#).positions contains the Nx3 matrix of xyz
 %       b) tag - takes the mean of xy components and determins which
 %       hemisphere we are in. as most sEEG are bilateral this is useful
 %
@@ -27,20 +27,26 @@ function [coords, tag]=plot_which_el(elStruct)
 
 %% plot_which_el
 
-disp('Which sEEG lead would you like to plot? Your options are:')
+%Determine which electrode leads we would like to plot
 for ii=1:length(elStruct)
-    disp(elStruct(ii).name);
+    names(ii)=elStruct(ii).name; %pull all names from the structure
 end
+disp('Which sEEG lead(s) would you like to plot (ex: RB RC)? Your options are:')
+disp(names');
 out=input('', "s");
+out=split(out);
+out=regexprep(out, ',', '');
+out=string(out);
 
-for ii=1:length(elStruct)
-    name=elStruct(ii).name;
-    if name==out
-        coords=elStruct(ii).positions; %search for input
-    end
+%Search for locations
+[~, loc]=ismember(out', names);
+coords=struct();
+
+%Add the positions to the out structure
+for ii=1:length(loc)
+    coords(ii).positions=elStruct(loc(ii)).positions;
 end
-
-side=mean(coords(:,1)); %determine if we are on L or R side to pull tracks and gifti file
+side=mean(coords(1).positions(:,1));
 if side < 0
     tag='L';
 else
