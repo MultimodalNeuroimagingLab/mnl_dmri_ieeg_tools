@@ -34,13 +34,14 @@ function render_dbs_lead(electrode_positions, lead_size, extrap_length, invlead)
 
 
 %% Initialize 
-%lead_radius=.4; % in mm for sEEG
-lead_radius=.635; %in mm for DBS
+lead_radius=.4; % in mm for sEEG
+%lead_radius=.635; %in mm for DBS
 
 %% Fit the electrode positions and upsample
 
 figure(2)
 spline_points=linreg3(electrode_positions);
+spline_points=sortrows(spline_points, 3, 'descend'); %assumes that leads have upward trajectory
 
 p1=spline_points(1,:); %get first point
 p2=spline_points(2,:); %get second point
@@ -55,7 +56,7 @@ else
     spline_points=[extrap_point; spline_points];
 end
 
-upsample_factor=1000;
+upsample_factor=50;
 spline_points=upsample_points(spline_points, upsample_factor); %upsample points
 set(findall(gcf,'-property','FontSize'),'FontSize',24)
 %% Create lead
