@@ -14,10 +14,7 @@ setMyMatlabPaths;
 addpath(genpath(pwd));
 subnum=1;
 
-[my_subject_labels,bids_path] = dmri_subject_list();
-sub_label = my_subject_labels{subnum};
 [sub_label,bids_path, ~, tracks] = limbic_subject_library(subnum);
-
 
 % Path to electrodes.tsv file
 electrode_fn=fullfile(bids_path, 'derivatives', 'qsiprep', ['sub-' sub_label], ['sub-' sub_label '_ses-ieeg01_space-T1w_desc-qsiprep_electrodes.tsv']);
