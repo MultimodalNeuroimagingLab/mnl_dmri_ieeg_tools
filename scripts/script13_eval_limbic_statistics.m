@@ -9,7 +9,7 @@
 %%
 clear all; close all;
 
-subnum=5;
+subnum=1;
 [sub_label,bids_path, electrodes, tracks] = limbic_subject_library(subnum);
 
 % Where we are loading struct from
@@ -18,6 +18,27 @@ load(statspath);
 
 % Where we are saving figure
 outpath=fullfile(bids_path, 'derivatives','stats',['sub-' sub_label]);
+
+%% Hippocampus
+hippocampus=[];
+for ii=1:length(limbic_dist_stats)
+    tmp=limbic_dist_stats(ii).hippocampus_dist;
+    hippocampus=[hippocampus, tmp];
+end
+
+x=electrodes;
+g(1, 1)=gramm('x', x, 'y', hippocampus);
+g(1, 1).stat_summary('geom', {'area'});
+g(1, 1).set_title(['Distance to Hippocampus sub-' sub_label]);
+g(1, 1).set_names('x','Electrode Contact','y', 'Distance (mm)');
+
+
+figure('Position',[100 100 800 550]);
+g.draw();
+
+outname=['sub-' sub_label 'dist2hippocampus'];
+g.export('file_name',outname,'export_path',outpath,'file_type','svg', 'height', 20.3, 'width', 25.6, 'units', 'inches');
+
 
 %% Create histogram plots
 % Pull out all length values for each electrode n.b can probably be more
@@ -57,5 +78,4 @@ for kk=1:length(tracks)
     
 end
 
-%% Create angle boxplots
 

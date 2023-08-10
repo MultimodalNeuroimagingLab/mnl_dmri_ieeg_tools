@@ -19,7 +19,7 @@ function h=renderROI(nifti, color, seg)
 
 %% renderROI
 
-if exist(seg, 'var')
+if nargin>2
     [rr,cc,vv] = ind2sub(size(nifti.data),find(nifti.data==seg));
 else
     [rr,cc,vv] = ind2sub(size(nifti.data),find(nifti.data>0));

@@ -31,12 +31,22 @@ ni_dwi = niftiRead(fullfile(bids_path, 'derivatives', 'qsiprep', ['sub-' sub_lab
 [fg_fromtrk]=create_trkstruct(ni_dwi, tracks); %create fg_fromtrk structure with all tracks
 elecmatrix = [electrode_tsv.x electrode_tsv.y electrode_tsv.z];  
 
+
+hippocampus=fullfile(bids_path,'derivatives', 'freesurfer', ['sub-' sub_label], 'mri', 'hippocampus_amygdala_lr.nii.gz' );
+tag=electrodes{1}(1);
+if tag=='R'
+    hippocampalseg=-32482; %seg for R
+else
+    hippocampalseg=-32676; %seg for L
+end
+
 %% Calculate statistics
 limbic_dist_stats=struct();
 for ii=1:length(electrodes)
     limbic_dist_stats(ii).name=['Electrode Contact: ' electrodes{ii}]; %we assume that electrodes and xyz have same length which should always be the case
     fg_fromtrk=strm_distance(fg_fromtrk, elecmatrix(ismember(electrode_tsv.name,electrodes{ii}),:));
     limbic_dist_stats(ii).trackstats = strm_angle(fg_fromtrk,elecmatrix(ismember(electrode_tsv.name,electrodes{ii}),:), 4); %angle within 4mm
+    limbic_dist_stats(ii).hippocampus_dist=roi_distance(elecmatrix(ismember(electrode_tsv.name,electrodes{ii}), :), hippocampus, hippocampalseg);
 end
 
 savepath=fullfile(bids_path, 'derivatives','stats',['sub-' sub_label], ['sub-' sub_label '_ses-ieeg01_dist_angle_stats.mat']);

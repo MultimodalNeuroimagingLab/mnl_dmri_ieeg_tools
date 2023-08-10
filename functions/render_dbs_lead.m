@@ -56,7 +56,7 @@ else
     spline_points=[extrap_point; spline_points];
 end
 
-upsample_factor=50;
+upsample_factor=200;
 spline_points=upsample_points(spline_points, upsample_factor); %upsample points
 set(findall(gcf,'-property','FontSize'),'FontSize',24)
 %% Create lead
