@@ -101,7 +101,7 @@ for kk=1:length(el(1).trackstats) %number of tracks
     
     for ii=1:8
         for jj=1:length(el(ii).trackstats(kk).mindist)
-            tmp=el(ii).trackstats(kk).mindist{jj};
+            tmp=el(ii).trackstats(kk).mindist{jj}; %simpler would be using arrayfun(@(el.trackstats) although a double index?
             mindist=[tmp; mindist];
         end
         ind=find(mindist<4);

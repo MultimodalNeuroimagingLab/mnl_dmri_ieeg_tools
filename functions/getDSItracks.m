@@ -21,10 +21,10 @@ function [Ltracks, Rtracks]=getDSItracks(varargin)
 
 %% getDSItracks
 
-pattern=fullfile(varargin{1}, '*.trk.gz'); %Search for .trk.gz
-
 if nargin>1
     pattern=fullfile(varargin{1}, '*.trk'); %folder doesnt have zipped files or we assume they are already unzipped
+else
+    pattern=fullfile(varargin{1}, '*.trk.gz'); %Search for .trk.gz
 end
 
 theFiles=dir(pattern); %search dir for the pattern
