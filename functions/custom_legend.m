@@ -27,6 +27,7 @@ for ii=1:length(trk_file)
     fileparts=track_fileparts{ii}; %get fileparts for one track
     tmp=regexprep(fileparts{end}, '.trk', ''); %regex the .trk out
     alltracks{ii}=regexprep(tmp, '_', ' ');
+    %L(ii)=plot(nan, nan, 'Color', colors{ii}, 'LineWidth', 8); %create nan line
     L(ii)=plot(nan, nan, 'Color', colors(ii, :), 'LineWidth', 8); %create nan line
 end
 
@@ -34,19 +35,25 @@ end
 
 if ifseg
     alltracks{ii+1}='Hippocampus Segmentation';
-    L(ii+1)=plot(nan, nan, 'Color', colors(ii+7, :), 'LineWidth', 8);
+    L(ii+1)=plot(nan, nan, 'Color', colors(ii+1, :), 'LineWidth', 8);
     
     alltracks{ii+2}='Ventral ANT Segmentation';
-    L(ii+2)=plot(nan, nan, 'Color', colors(ii+8, :), 'LineWidth', 8);
+    L(ii+2)=plot(nan, nan, 'Color', colors(ii+2, :), 'LineWidth', 8);
+    
+    %alltracks{ii+2}='CM Segmentation';
+    %L(ii+2)=plot(nan, nan, 'Color', colors(ii+2, :), 'LineWidth', 8);
     
     alltracks{ii+3}='Dorsal ANT Segmentation';
-    L(ii+3)=plot(nan, nan, 'Color', colors(ii+9, :), 'LineWidth', 8);
+    L(ii+3)=plot(nan, nan, 'Color', colors(ii+3, :), 'LineWidth', 8);
+    
+    %alltracks{ii+3}='CL Segmentation';
+    %L(ii+3)=plot(nan, nan, 'Color', colors(ii+3, :), 'LineWidth', 8);
     
     alltracks{ii+4}='Medial ANT Segmentation';
-    L(ii+4)=plot(nan, nan, 'Color', colors(ii+10, :), 'LineWidth', 8);
+    L(ii+4)=plot(nan, nan, 'Color', colors(ii+4, :), 'LineWidth', 8);
     
     lgd=legend(L(1:ii+4), alltracks, 'Interpreter', 'none', 'FontSize', 18); %create legend
-    
+    %lgd=legend(L(1:ii+3), alltracks, 'Interpreter', 'none', 'FontSize', 18); %create legend
 else
     lgd=legend(L(1:ii), alltracks, 'Interpreter', 'none', 'FontSize', 18); 
 end

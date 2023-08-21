@@ -86,7 +86,6 @@ g.draw();
 
 outname=['sub-' sub_label 'dist2roi'];
 g.export('file_name',outname,'export_path',outpath,'file_type','svg', 'height', 20.3, 'width', 25.6, 'units', 'inches');
-    
 
 
 
@@ -136,8 +135,13 @@ for kk=1:length(el(1).trackstats) %number of tracks
     
 end
 
+%% boxplots for all subjects
 
-%%
+
+    
+   
+
+%% 
 
 % %% Lets now target Cingulum_Parahippocampal_Parietal
 % % Some subjects may have hippocampal lead closer to this track instead of

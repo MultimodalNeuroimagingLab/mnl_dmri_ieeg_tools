@@ -20,14 +20,20 @@ function h=renderROI(nifti, color, seg)
 %% renderROI
 
 if nargin>2
-    [rr,cc,vv] = ind2sub(size(nifti.data),find(nifti.data==seg));
+    if length(seg) > 1 %assumes that we have a spread of seg values, select all of them between
+        upperbound=max(seg);
+        lowerbound=min(seg);
+        [rr,cc,vv] = ind2sub(size(nifti.data),find(nifti.data > lowerbound & nifti.data < upperbound));
+    else        
+    [rr,cc,vv] = ind2sub(size(nifti.data),find(nifti.data==seg)); %assumes we have one seg value, pull it out in nifti.data
+    end
 else
-    [rr,cc,vv] = ind2sub(size(nifti.data),find(nifti.data>0));
+    [rr,cc,vv] = ind2sub(size(nifti.data),find(nifti.data>0)); %assume we have no seg, thus take all positive values
 end
 
-[xyz] = [rr cc vv ones(size(vv))] * nifti.qto_xyz';
+[xyz] = [rr cc vv ones(size(vv))] * nifti.qto_xyz'; %multiply coordinates by transformation matrix (q to xyz)
 roi.coords = xyz(:,1:3);
-h=AFQ_RenderRoi(roi,color,'mesh','surface');
+h=AFQ_RenderRoi(roi,color,'mesh','surface'); %call AFQ plotter
 
 
 

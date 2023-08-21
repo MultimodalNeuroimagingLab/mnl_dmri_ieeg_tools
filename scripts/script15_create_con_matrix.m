@@ -32,7 +32,7 @@
 %% create_con_matrix
 clear all;
 close all;
-subnum=5;
+subnum=6;
 [sub_label,bids_path, electrodes, tracks] = limbic_subject_library(subnum);
 
 %read electrode tsv
@@ -41,16 +41,18 @@ elecmatrix = [electrode_tsv.x electrode_tsv.y electrode_tsv.z];
 
 %fullpath to the fib file
 fib=fullfile(bids_path, 'derivatives', 'qsiprep', ['sub-' sub_label], 'ses-compact3T01', 'dwi','dsi_autotrack', ['sub-' sub_label '_ses-compact3T01_acq-diadem_space-T1w_desc-preproc_dwi.nii.gz.src.gz.gqi.1.fib.gz']);
+fib=fullfile(bids_path, 'derivatives', 'qsiprep', ['sub-' sub_label], 'ses-mri01', 'dwi','dsi_autotrack', ['sub-' sub_label '_ses-mri01_acq-axdti_space-T1w_desc-preproc_dwi.nii.gz.src.gz.gqi.1.fib.gz']);
 
 connectivitysum=zeros(80,80); %80x80 connectivity matrix
 for ii=1:length(electrodes)
     
     %Create nifti file with 2mm sphere around electrode position
-    ieeg_position2reslicedImage(elecmatrix(ismember(electrode_tsv.name,electrodes{ii}),:),fullfile(bids_path, 'derivatives', 'qsiprep', ['sub-' sub_label], 'ses-compact3T01', 'dwi', 'dsi_autotrack', ['rsub-' sub_label '_desc-preproc_T1w.nii']), fullfile(bids_path, 'derivatives', 'qsiprep', ['sub-' sub_label], 'ses-compact3T01', 'dwi', 'dsi_autotrack'));
+    ieeg_position2reslicedImage(elecmatrix(ismember(electrode_tsv.name,electrodes{ii}),:),fullfile(bids_path, 'derivatives', 'qsiprep', ['sub-' sub_label], 'ses-mri01', 'dwi', 'dsi_autotrack', ['rsub-' sub_label '_desc-preproc_T1w.nii']), fullfile(bids_path, 'derivatives', 'qsiprep', ['sub-' sub_label], 'ses-mri01', 'dwi', 'dsi_autotrack'));
     
     %Load the created nifti file
     ni=fullfile(bids_path, 'derivatives', 'qsiprep', ['sub-' sub_label], 'ses-compact3T01', 'dwi', 'dsi_autotrack', ['Electrodes2Image_' num2str(ii) '.nii']);
-    
+    ni=fullfile(bids_path, 'derivatives', 'qsiprep', ['sub-' sub_label], 'ses-mri01', 'dwi', 'dsi_autotrack', ['Electrodes2Image_' num2str(ii) '.nii']);
+
     %Write the whole system call; then execute
     syscall=['export DSI_HOME=/Applications/dsi_studio.app/Contents/MacOS && cd $DSI_HOME && ./dsi_studio --action=trk --seed=' ni  ' --source=' fib ' --parameter_id=c9A99193Fb803FdbA041b96438813cb01cbaCDCC4C3Ec --output=no_file --connectivity=HCP842_tractography --connectivity_value=count --connectivity_type=pass' ];
     
@@ -61,7 +63,7 @@ for ii=1:length(electrodes)
     system(syscall);
    
     %load connectivitymatrix, these are continually re-written
-    connectivitymatrix=load(fullfile(bids_path, 'derivatives', 'qsiprep', ['sub-' sub_label], 'ses-compact3T01', 'dwi', 'dsi_autotrack', ['sub-' sub_label '_ses-compact3T01_acq-diadem_space-T1w_desc-preproc_dwi.nii.gz.src.gz.gqi.1.fib.gz.tt.gz.HCP842_tractography.count.pass.connectivity.mat']));
+    connectivitymatrix=load(fullfile(bids_path, 'derivatives', 'qsiprep', ['sub-' sub_label], 'ses-mri01', 'dwi', 'dsi_autotrack', ['sub-' sub_label '_ses-mri01_acq-axdti_space-T1w_desc-preproc_dwi.nii.gz.src.gz.gqi.1.fib.gz.tt.gz.HCP842_tractography.count.pass.connectivity.mat']));
     connectivitysum=connectivitysum + connectivitymatrix.connectivity;
     if ii==2
         connectivitytotal=cat(3, connectivitysum, connectivitymatrix.connectivity); %first pass connectivity sum is zero so we can add it on the second pass

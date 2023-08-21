@@ -35,11 +35,16 @@ if ischar(seg)
     % if seg is a string, we assume that the entire nifti is one
     % segmentation, thus we want nonzero datapoints
     [rr,cc,vv] = ind2sub(size(nifti.data),find(nifti.data>0));
-else
+elseif length(seg)==1
     % if seg is not a string, we assume that the nifti is composed of
     % multiple segs with different .data pixel values, and pull out a
     % specific value.
     [rr,cc,vv] = ind2sub(size(nifti.data),find(nifti.data==seg));
+else
+    upperbound=max(seg);
+    lowerbound=min(seg);
+    [rr,cc,vv] = ind2sub(size(nifti.data),find(nifti.data > lowerbound & nifti.data < upperbound));
+    
 end
 
 [xyz] = [rr cc vv ones(size(vv))] * nifti.qto_xyz'; %apply transformation matrix from roi file
@@ -58,6 +63,7 @@ else
     dist=min(dist);
 end
 close(gcf);
+
 
 
 

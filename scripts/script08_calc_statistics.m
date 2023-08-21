@@ -21,7 +21,7 @@
 clear all;
 close all;
 
-subnum=5;
+subnum=4;
 [my_subject_labels,bids_path] = dmri_subject_list();
 sub_label = my_subject_labels{subnum};
 dsipath=fullfile(bids_path,'BIDS_subjectsRaw', 'derivatives','dsistudio',['sub-' sub_label]);
@@ -58,11 +58,15 @@ hippocampalsegL=-32676;
 l_AV=fullfile(bids_path, 'BIDS_subjectsRaw', 'derivatives', 'leaddbsinqsi', ['sub-' sub_label], 'lAV.nii');
 l_AD=fullfile(bids_path, 'BIDS_subjectsRaw', 'derivatives', 'leaddbsinqsi', ['sub-' sub_label], 'lAD.nii');
 l_AM=fullfile(bids_path, 'BIDS_subjectsRaw', 'derivatives', 'leaddbsinqsi', ['sub-' sub_label], 'lAM.nii');
+%l_CM=fullfile(bids_path, 'BIDS_subjectsRaw', 'derivatives', 'leaddbsinqsi', ['sub-' sub_label], 'lCM.nii');
+%l_CL=fullfile(bids_path, 'BIDS_subjectsRaw', 'derivatives', 'leaddbsinqsi', ['sub-' sub_label], 'lCL.nii');
 
 %ANT segmentations for R ventral (AV), dorsal (AD), and medial (AM)
 r_AV=fullfile(bids_path, 'BIDS_subjectsRaw', 'derivatives', 'leaddbsinqsi', ['sub-' sub_label], 'rAV.nii');
 r_AD=fullfile(bids_path, 'BIDS_subjectsRaw', 'derivatives', 'leaddbsinqsi', ['sub-' sub_label], 'rAD.nii');
 r_AM=fullfile(bids_path, 'BIDS_subjectsRaw', 'derivatives', 'leaddbsinqsi', ['sub-' sub_label], 'rAM.nii');
+%r_CM=fullfile(bids_path, 'BIDS_subjectsRaw', 'derivatives', 'leaddbsinqsi', ['sub-' sub_label], 'rCM.nii');
+%r_CL=fullfile(bids_path, 'BIDS_subjectsRaw', 'derivatives', 'leaddbsinqsi', ['sub-' sub_label], 'rCL.nii');
 
 %% Compute distances and angle for right side
 
@@ -75,6 +79,8 @@ for ii=1:length(electrodes)
     el(ii+8).AV_r_dist=roi_distance(elecmatrix(ismember(electrode_tsv.label,electrodes{ii}), :), r_AV, 'Ventral ANT');
     el(ii+8).AD_r_dist=roi_distance(elecmatrix(ismember(electrode_tsv.label,electrodes{ii}), :), r_AD, 'Dorsal ANT');
     el(ii+8).AM_r_dist=roi_distance(elecmatrix(ismember(electrode_tsv.label,electrodes{ii}), :), r_AM, 'Medial ANT');
+    %el(ii+8).CL_r_dist=roi_distance(elecmatrix(ismember(electrode_tsv.label,electrodes{ii}), :), r_CL, 'CL');
+    %el(ii+8).CM_r_dist=roi_distance(elecmatrix(ismember(electrode_tsv.label,electrodes{ii}), :), r_CM, 'CM');
 end
 
 %% Compute distances and angle for left side
@@ -89,6 +95,8 @@ for ii=1:length(electrodes)
     el(ii).AV_l_dist=roi_distance(elecmatrix(ismember(electrode_tsv.label,electrodes{ii}), :), l_AV, 'Ventral ANT');
     el(ii).AD_l_dist=roi_distance(elecmatrix(ismember(electrode_tsv.label,electrodes{ii}), :), l_AD, 'Dorsal ANT');
     el(ii).AM_l_dist=roi_distance(elecmatrix(ismember(electrode_tsv.label,electrodes{ii}), :), l_AM, 'Medial ANT');
+    %el(ii).CL_l_dist=roi_distance(elecmatrix(ismember(electrode_tsv.label,electrodes{ii}), :), l_CL, 'CL');
+    %el(ii).CM_l_dist=roi_distance(elecmatrix(ismember(electrode_tsv.label,electrodes{ii}), :), l_CM, 'CM');
 end
 
 %% save statistics

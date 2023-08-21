@@ -90,12 +90,12 @@ render_dbs_lead(elecmatrix(9:12, :), .75, 46.6, 0)
 %Medtronic 3391 RC+S (total length 57.1mm - extension 32.6mm). R=1.5mm
 render_dbs_lead(elecmatrix(13:16, :), 1.5, 32.6, 0) 
 
-loc_view(-90,0)
-
 addElectrode(elecmatrix(9:16, :), 'b', 0, .2, 9:16); %add blue rendering
+
+%% Changing some plotting stuff
 hip.FaceAlpha=.5;
 av.FaceAlpha=.5;
 ad.FaceAlpha=.5;
 am.FaceAlpha=.5;
-
 custom_legend(Rtracks, color, sub_label, 1) %add custom legend
+loc_view(-90,0)

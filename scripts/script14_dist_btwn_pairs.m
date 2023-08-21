@@ -10,7 +10,7 @@
 
 clear all; close all;
 
-subnum=5;
+subnum=3;
 [sub_label,bids_path, electrodes, tracks, elpair] = limbic_subject_library(subnum);
 
 for ii=1:length(tracks)
@@ -35,31 +35,34 @@ elecmatrix = [electrode_tsv.x electrode_tsv.y electrode_tsv.z];
 
 %% Calculate distances
 
-% First for the first 
+% First for the distances: strm_distance calculates the minimum distance
+% from contact to track, but also the index point. We can then use the ind
+% to clip the track and calculate the euclidean distance from clip point 1
+% to clip point 2. 
 fg_fromtrk1=strm_distance(fg_fromtrk, elecmatrix(ismember(electrode_tsv.name,elpair{1}),:));
 fg_fromtrk2=strm_distance(fg_fromtrk, elecmatrix(ismember(electrode_tsv.name,elpair{2}),:));
 
 totaldistance=zeros(length(fg_fromtrk1.mindist), 1);
 for ii=1:length(fg_fromtrk1.mindist)
     
-    indices=[fg_fromtrk1.mindistind{ii}, fg_fromtrk2.mindistind{ii}];
-    upperbound=max(indices);
+    indices=[fg_fromtrk1.mindistind{ii}, fg_fromtrk2.mindistind{ii}]; %both of the clip points
+    upperbound=max(indices); %sort
     lowerbound=min(indices);
     
-    if lowerbound==upperbound
-        totaldistance(ii)=NaN;
+    if lowerbound==upperbound %edge case, can trigger if contacts are very far away, or if streamline is cut short (not along the whole track)
+        totaldistance(ii)=NaN; 
     else
-        fibermat=fg_fromtrk.fibers{ii}(:, lowerbound:upperbound);
-        [total_distance] = trk_distance(fibermat(1,:), fibermat(2,:), fibermat(3,:), []);
-        totaldistance(ii)=total_distance+fg_fromtrk1.mindist{ii}+fg_fromtrk2.mindist{ii};
+        fibermat=fg_fromtrk.fibers{ii}(:, lowerbound:upperbound); %clip the streamline
+        [total_distance] = trk_distance(fibermat(1,:), fibermat(2,:), fibermat(3,:), []); %calculate the streamline distance
+        totaldistance(ii)=total_distance+fg_fromtrk1.mindist{ii}+fg_fromtrk2.mindist{ii}; %add the distance from probe to streamline point to streamline distance for total distance
     end
 end
 
-totaldiststruct=struct();
+totaldiststruct=struct(); %save values in a structure
 totaldiststruct.totaldistance=totaldistance;
 totaldiststruct.totaldistancemean=mean(rmmissing(totaldistance));
 totaldiststruct.totaldistancemedian=median(rmmissing(totaldistance));
-totaldiststruct.pairs=[elpair{1} ' ' elpair{2}];
+totaldiststruct.pairs=[elpair{1} ' ' elpair{2}]; %note which electrode pairs and which tracks we are using
 totaldiststruct.track=elpair{3};
 
 savepath=fullfile(bids_path, 'derivatives','stats',['sub-' sub_label], ['sub-' sub_label '_ses-ieeg01_distpairs.mat']);

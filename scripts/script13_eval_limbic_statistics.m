@@ -9,7 +9,7 @@
 %%
 clear all; close all;
 
-subnum=1;
+subnum=6;
 [sub_label,bids_path, electrodes, tracks] = limbic_subject_library(subnum);
 
 % Where we are loading struct from
@@ -32,6 +32,29 @@ g(1, 1).stat_summary('geom', {'area'});
 g(1, 1).set_title(['Distance to Hippocampus sub-' sub_label]);
 g(1, 1).set_names('x','Electrode Contact','y', 'Distance (mm)');
 
+hippocampus_body=[];
+for ii=1:length(limbic_dist_stats)
+    tmp=limbic_dist_stats(ii).hippocampus_body_dist;
+    hippocampus_body=[hippocampus_body, tmp];
+end
+
+hippocampus_tail=[];
+for ii=1:length(limbic_dist_stats)
+    tmp=limbic_dist_stats(ii).hippocampus_tail_dist;
+    hippocampus_tail=[hippocampus_tail, tmp];
+end
+
+y=[hippocampus_body, hippocampus_tail];
+tail=repmat({'Tail'}, length(limbic_dist_stats), 1);
+body=repmat({'Body'}, length(limbic_dist_stats), 1);
+color=[body; tail];
+x=repmat(x, 1, 2);
+
+g(1, 2)=gramm('x', x, 'y', y, 'color', color);
+g(1, 2).stat_summary('geom', {'area'});
+g(1, 2).set_title(['Distance to Hippocampus Subfields sub-' sub_label]);
+g(1, 2).set_names('x','Electrode Contact','y', 'Distance (mm)');
+
 
 figure('Position',[100 100 800 550]);
 g.draw();
@@ -50,7 +73,7 @@ for kk=1:length(tracks)
     close all;
     mindist=[];
 
-    for ii=1:15
+    for ii=[1:17]
         for jj=1:length(limbic_dist_stats(ii).trackstats(kk).mindist)
             tmp=limbic_dist_stats(ii).trackstats(kk).mindist{jj};
             mindist=[tmp; mindist];

@@ -16,7 +16,8 @@ function glass_brain_fig(subnum)
 close all;
 
 %Set track colors
-color={'#D00000', '#3185FC', '#FFBA08', '#5D2E8C', '#CBFF8C', '#46237A', '#8FE388', '#FF7B9C', '#1B998B', '#FF9B85'};
+color={'#D00000', '#3185FC', '#FFBA08', '#5D2E8C', '#CBFF8C', '#46237A', '#8FE388', '#FF7B9C', '#1B998B', '#000000'};
+color=validatecolor(color, 'Multiple');
 
 %Set paths, get bids path and subject label
 setMyMatlabPaths;
@@ -70,8 +71,14 @@ av=renderROI(r_AV, color(8, :));
 r_AD=niftiRead(fullfile(bids_path, 'BIDS_subjectsRaw', 'derivatives', 'leaddbsinqsi', ['sub-' sub_label], 'rAD.nii'));
 ad=renderROI(r_AD, color(9, :));
 
-r_AM=niftiRead(fullfile(bids_path, 'BIDS_subjectsRaw', 'derivatives', 'leaddbsinqsi', ['sub-' sub_label], 'rAD.nii'));
+r_AM=niftiRead(fullfile(bids_path, 'BIDS_subjectsRaw', 'derivatives', 'leaddbsinqsi', ['sub-' sub_label], 'rAM.nii'));
 am=renderROI(r_AM, color(10, :));
+
+%r_CL=niftiRead(fullfile(bids_path, 'BIDS_subjectsRaw', 'derivatives', 'leaddbsinqsi', ['sub-' sub_label], 'rCL.nii'));
+%cl=renderROI(r_CL, color(8, :));
+
+%r_CM=niftiRead(fullfile(bids_path, 'BIDS_subjectsRaw', 'derivatives', 'leaddbsinqsi', ['sub-' sub_label], 'rCM.nii'));
+%cm=renderROI(r_CM, color(9, :));
 
 
 %% Adding electrodes
@@ -97,25 +104,27 @@ hip.FaceAlpha=.5;
 av.FaceAlpha=.5;
 ad.FaceAlpha=.5;
 am.FaceAlpha=.5;
+%cl.FaceAlpha=.5;
+%cm.FaceAlpha=.5;
 
 %Add legend
 custom_legend(Rtracks, color, sub_label, 1) 
 
 %Rotate the brain in different views and save the output as a .svg file
 loc_view(90, 0)
-savename=fullfile(bids_path,'BIDS_subjectsRaw','derivatives', 'figs', ['sub-' sub_label], ['sub-' sub_label '_glassbrain_allseg90_notrkrender_R.svg']);
+savename=fullfile(bids_path,'BIDS_subjectsRaw','derivatives', 'figs', ['sub-' sub_label], ['sub-' sub_label '_glassbrain_CMCL90_render_R.svg']);
 saveas(gcf, savename)
 
 loc_view(180, 0)
-savename=fullfile(bids_path,'BIDS_subjectsRaw','derivatives', 'figs', ['sub-' sub_label], ['sub-' sub_label '_glassbrain_allseg180_notrkrender_R.svg']);
+savename=fullfile(bids_path,'BIDS_subjectsRaw','derivatives', 'figs', ['sub-' sub_label], ['sub-' sub_label '_glassbrain_CMCL180_render_R.svg']);
 saveas(gcf, savename)
 
 loc_view(270, 0)
-savename=fullfile(bids_path,'BIDS_subjectsRaw','derivatives', 'figs', ['sub-' sub_label], ['sub-' sub_label '_glassbrain_allseg270_notrkrender_R.svg']);
+savename=fullfile(bids_path,'BIDS_subjectsRaw','derivatives', 'figs', ['sub-' sub_label], ['sub-' sub_label '_glassbrain_CMCL270_render_R.svg']);
 saveas(gcf, savename)
 
 loc_view(0, 0)
-savename=fullfile(bids_path,'BIDS_subjectsRaw','derivatives', 'figs', ['sub-' sub_label], ['sub-' sub_label '_glassbrain_allseg0_notrkrender_R.svg']);
+savename=fullfile(bids_path,'BIDS_subjectsRaw','derivatives', 'figs', ['sub-' sub_label], ['sub-' sub_label '_glassbrain_CMCL0_render_R.svg']);
 saveas(gcf, savename)
 
 %% Now for the left side - repeat from above
@@ -142,7 +151,7 @@ disp(['Created track render in ' num2str(toc) ' seconds'])
 
 %Plot ROI, now for left side
 hippocampus=niftiRead(fullfile(bids_path,'BIDS_subjectsRaw','derivatives', 'freesurfer', ['sub-' sub_label], sub_label, 'mri', 'hippocampus_amygdala_lr_preproc.nii.gz' ));
-hip=renderROI_viaseg(hippocampus, color(7, :), -32676); %left fs tag
+hip=renderROI(hippocampus, color(7, :), -32676); %left fs tag
 
 l_AV=niftiRead(fullfile(bids_path, 'BIDS_subjectsRaw', 'derivatives', 'leaddbsinqsi', ['sub-' sub_label], 'lAV.nii'));
 av=renderROI(l_AV, color(8, :));
@@ -150,8 +159,14 @@ av=renderROI(l_AV, color(8, :));
 l_AD=niftiRead(fullfile(bids_path, 'BIDS_subjectsRaw', 'derivatives', 'leaddbsinqsi', ['sub-' sub_label], 'lAD.nii'));
 ad=renderROI(l_AD, color(9, :));
 
-l_AM=niftiRead(fullfile(bids_path, 'BIDS_subjectsRaw', 'derivatives', 'leaddbsinqsi', ['sub-' sub_label], 'lAD.nii'));
+l_AM=niftiRead(fullfile(bids_path, 'BIDS_subjectsRaw', 'derivatives', 'leaddbsinqsi', ['sub-' sub_label], 'lAM.nii'));
 am=renderROI(l_AM, color(10, :));
+
+%l_CL=niftiRead(fullfile(bids_path, 'BIDS_subjectsRaw', 'derivatives', 'leaddbsinqsi', ['sub-' sub_label], 'lCL.nii'));
+%cl=renderROI(l_CL, color(8, :));
+
+%l_CM=niftiRead(fullfile(bids_path, 'BIDS_subjectsRaw', 'derivatives', 'leaddbsinqsi', ['sub-' sub_label], 'lCM.nii'));
+%cm=renderROI(l_CM, color(9, :));
 
 %% Adding electrodes
 
@@ -175,23 +190,26 @@ hip.FaceAlpha=.5;
 av.FaceAlpha=.5;
 ad.FaceAlpha=.5;
 am.FaceAlpha=.5;
+%cl.FaceAlpha=.5;
+%cm.FaceAlpha=.5;
+
 custom_legend(Ltracks, color, sub_label, 1) %add custom legend
 
 %Rotate and save as .svg file in appropriate location
 loc_view(90, 0)
-savename=fullfile(bids_path,'BIDS_subjectsRaw','derivatives', 'figs', ['sub-' sub_label], ['sub-' sub_label '_glassbrain_allseg90_notrkrender_L.svg']);
+savename=fullfile(bids_path,'BIDS_subjectsRaw','derivatives', 'figs', ['sub-' sub_label], ['sub-' sub_label '_glassbrain_CMCL90_notrkrender_L.svg']);
 saveas(gcf, savename)
 
 loc_view(180, 0)
-savename=fullfile(bids_path,'BIDS_subjectsRaw','derivatives', 'figs', ['sub-' sub_label], ['sub-' sub_label '_glassbrain_allseg180_notrkrender_L.svg']);
+savename=fullfile(bids_path,'BIDS_subjectsRaw','derivatives', 'figs', ['sub-' sub_label], ['sub-' sub_label '_glassbrain_CMCL180_notrkrender_L.svg']);
 saveas(gcf, savename)
 
 loc_view(270, 0)
-savename=fullfile(bids_path,'BIDS_subjectsRaw','derivatives', 'figs', ['sub-' sub_label], ['sub-' sub_label '_glassbrain_allseg270_notrkrender_L.svg']);
+savename=fullfile(bids_path,'BIDS_subjectsRaw','derivatives', 'figs', ['sub-' sub_label], ['sub-' sub_label '_glassbrain_CMCL270_notrkrender_L.svg']);
 saveas(gcf, savename)
 
 loc_view(0, 0)
-savename=fullfile(bids_path,'BIDS_subjectsRaw','derivatives', 'figs', ['sub-' sub_label], ['sub-' sub_label '_glassbrain_allseg0_notrkrender_L.svg']);
+savename=fullfile(bids_path,'BIDS_subjectsRaw','derivatives', 'figs', ['sub-' sub_label], ['sub-' sub_label '_glassbrain_CMCL0_notrkrender_L.svg']);
 saveas(gcf, savename)
 
 end

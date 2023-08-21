@@ -26,14 +26,16 @@ clear all;
 close all;
 setMyMatlabPaths;
 addpath(genpath(pwd));
-subnum=2;
+subnum=6;
 
 [sub_label,bids_path, electrodes, tracks] = limbic_subject_library(subnum);
 hemi=electrodes{1}(1); %take first char from first electrode, either R/L
 
 for ii=1:length(electrodes)
     electrodename=electrodes{ii};
-    matrix=load(fullfile(bids_path, 'derivatives', 'qsiprep', ['sub-' sub_label], 'ses-compact3T01', 'dwi', 'dsi_autotrack', [electrodename '.mat'])); 
+    %matrix=load(fullfile(bids_path, 'derivatives', 'qsiprep', ['sub-' sub_label], 'ses-compact3T01', 'dwi', 'dsi_autotrack', [electrodename '.mat'])); 
+    matrix=load(fullfile(bids_path, 'derivatives', 'qsiprep', ['sub-' sub_label], 'ses-mri01', 'dwi', 'dsi_autotrack', [electrodename '.mat'])); 
+
     labels = textscan(char(matrix.name),'%s'); %take labels from connectivity matrix
     labels=labels{:}(1:end-1);
     
@@ -45,8 +47,15 @@ for ii=1:length(electrodes)
     
 end
 
-sz=size(connectmatrix);
+tracks={'Cortico_Spinal_Tract!', 'Fornix!', 'Cingulum!'};
+tracks=regexprep(tracks, '!', ['_' hemi]);
 
+corticospinal_ind=strcmp(labels, tracks{1});
+fornix_ind=strcmp(labels, tracks{2});
+cingulum_ind=strcmp(labels, tracks{3});
+
+%% create fig1
+sz=size(connectmatrix);
 labels=regexprep(labels, '_', ' ');
 figure(1)
 imagesc(connectmatrix')
@@ -57,6 +66,8 @@ xlabel('Electrode Contact Seeds')
 ylabel('Tracks')
 title(['sub-' sub_label ' Seed Tracking via Electrode Contacts'])
 
+
+%% create fig2
 padd=zeros(min(sz), min(sz));
 totalconnectmatrix=[padd, connectmatrix]; %padd the matrix such that we have no connections from electrode to electrode
 colors=[jet(min(sz)); repmat([0 0 0], max(sz), 1)]; %get a jet colormap for the contacts, the rest are 0 0 0;
@@ -64,4 +75,50 @@ colors=[jet(min(sz)); repmat([0 0 0], max(sz), 1)]; %get a jet colormap for the 
 figure(2)
 circularGraph(totalconnectmatrix, 'Label', [electrodes'; labels], 'Color', colors);
 title(['sub-' sub_label ' Circular representation of node connections via seed tracking'])
+
+%% create fig3
+statspath=fullfile(bids_path, 'derivatives','stats',['sub-' sub_label], ['sub-' sub_label '_ses-ieeg01_dist_angle_stats.mat']);
+load(statspath);
+
+distances=[];
+for ii=1:length(limbic_dist_stats)
+    tmp=limbic_dist_stats(ii).hippocampus_dist;
+    distances=[distances, tmp];
+end
+
+distancesind=distances<15; %take only distances within 15mm
+distances=distances(distancesind);
+
+%first fornix, then cingulum, then corticospinal
+connectionArray={connectmatrix(distancesind,fornix_ind) , connectmatrix(:,cingulum_ind) , connectmatrix(:,corticospinal_ind)};
+colors={'r', 'g', 'b'};
+
+figure(3)
+hold on;
+
+for ii=1
+    connections=connectionArray{ii};
+    [R, p]=corrcoef(distances, connections);
+    pval=p(1, 2); %p
+    R=R(1, 2)^2; %R2
+    
+    pfit=polyfit(distances, connections, 1);
+    yfit=polyval(pfit, distances);
+    
+    scatter(distances, connections, colors{ii}, 'filled');
+    plot(distances, yfit, 'Color', colors{ii}, 'LineWidth', 4);
+    
+    legtext=sprintf('R^2=%.2f, p=%.4f', R, pval);
+    text(max(distances)*.01, max(connections)*.9 - ii*.01*max(connections), legtext, 'Color', colors{ii});
+end
+xlabel('Distances to Hippocampus');
+ylabel('Number of track connections');
+title('Correlation of Distance vs Connections for Fornix');
+    
+    
+
+
+
+
+
 %saveallfig

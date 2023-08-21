@@ -18,6 +18,11 @@ function fg_fromtrk=strm_distance(fg_fromtrk, roi)
 %       a) fg_fromtrk - .distance is added to the structures with the
 %       euclidean distance for every track and each individual streamline
 %       point within track. 
+%       b) fg_fromtrk - .mindist is added to the structure as the minimum
+%       distance from contact to point on the streamline
+%       c) fg_fromtrk - .mindistind is added as the location of the minimum
+%       distance; this is used in order to clip streamlines by the contact
+%       they are closest to.
 
 
 

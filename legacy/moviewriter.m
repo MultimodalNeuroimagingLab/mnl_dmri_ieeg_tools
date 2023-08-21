@@ -12,8 +12,8 @@
 %% moviewriter
 
 clear all;
-folder='~/Desktop/dsi_figs/sub-01';
-outputVideo=VideoWriter('~/Desktop/dsi_figs/sub-01/sub1.mp4', 'MPEG-4');
+folder='~/Desktop/dsi_figs/sub-06';
+outputVideo=VideoWriter('~/Desktop/dsi_figs/sub-06/sub6.mp4', 'MPEG-4');
 outputVideo.FrameRate=10;
 open(outputVideo);
 
