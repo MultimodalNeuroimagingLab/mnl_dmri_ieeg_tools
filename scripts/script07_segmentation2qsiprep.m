@@ -9,7 +9,7 @@
 %   hippocampus_amygdala_lr_preproc.nii.gz file. 
 
 %% load subject
-subnum=6;
+subnum=1;
 [sub_name,bids_path, ~, ~] = limbic_subject_library(subnum);
 
 segmentFile=fullfile(bids_path, 'derivatives', 'freesurfer', ['sub-' sub_name], 'mri', 'aparc.a2009s+aseg.mgz');
@@ -24,7 +24,9 @@ if ~exist(outfile, 'file')
 end
 
 reslicecell=[{fullfile(bids_path,'derivatives','freesurfer',['sub-' sub_name],['sub-' sub_name '_ses-mri01_T1w_acpc.nii'])}; {outfile}];
-spm_reslice(reslicecell);
+flags=struct();
+flags.interp=0;
+spm_reslice(reslicecell, flags);
 
 outfile=regexprep(outfile, 'hippocampus', 'rhippocampus');
 
@@ -48,7 +50,7 @@ niftiWrite(Hip,Hip_save_name)
 
 %% Hippocampal subfields - left side
 
-segmentFile=fullfile(bids_path, 'derivatives', 'freesurfer', ['sub-' sub_name], 'mri', 'lh.hippoAmygLabels-T1.v22.mgz');
+segmentFile=fullfile(bids_path, 'derivatives', 'freesurfer', ['sub-' sub_name], 'mri', 'lh.hippoAmygLabels-T1.v22.HBT.mgz');
 outfile=fullfile(bids_path, 'derivatives', 'freesurfer', ['sub-' sub_name], 'mri', 'lhippocampus_subfield.nii.gz');
 str=['! FREESURFER_HOME=/Applications/freesurfer/7.4.1 && source /Applications/freesurfer/7.4.1/SetUpFreeSurfer.sh && mri_convert  --out_orientation RAS -rt Nearest ' segmentFile ' ' outfile];
 eval(str)
@@ -58,7 +60,7 @@ if ~exist(outfile, 'file')
     gunzip(strcat(outfile, '.gz'));
 end
 reslicecell=[{fullfile(bids_path,'derivatives','freesurfer',['sub-' sub_name],['sub-' sub_name '_ses-mri01_T1w_acpc.nii'])}; {outfile}];
-spm_reslice(reslicecell);
+spm_reslice(reslicecell, flags);
 outfile=regexprep(outfile, 'lhippocampus','rlhippocampus');
 
 Hip = niftiRead(outfile);
@@ -72,7 +74,7 @@ niftiWrite(Hip,lh_save_name)
 
 
 %% Hippocampal subfields - right side
-segmentFile=fullfile(bids_path, 'derivatives', 'freesurfer', ['sub-' sub_name], 'mri', 'rh.hippoAmygLabels-T1.v22.mgz');
+segmentFile=fullfile(bids_path, 'derivatives', 'freesurfer', ['sub-' sub_name], 'mri', 'rh.hippoAmygLabels-T1.v22.HBT.mgz');
 outfile=fullfile(bids_path, 'derivatives', 'freesurfer', ['sub-' sub_name], 'mri', 'rhippocampus_subfield.nii.gz');
 str=['! FREESURFER_HOME=/Applications/freesurfer/7.4.1 && source /Applications/freesurfer/7.4.1/SetUpFreeSurfer.sh && mri_convert  --out_orientation RAS -rt Nearest ' segmentFile ' ' outfile];
 eval(str)
@@ -82,7 +84,7 @@ if ~exist(outfile, 'file')
     gunzip(strcat(outfile, '.gz'));
 end
 reslicecell=[{fullfile(bids_path,'derivatives','freesurfer',['sub-' sub_name],['sub-' sub_name '_ses-mri01_T1w_acpc.nii'])}; {outfile}];
-spm_reslice(reslicecell);
+spm_reslice(reslicecell, flags);
 outfile=regexprep(outfile, 'rhippocampus', 'rrhippocampus');
 
 Hip = niftiRead(outfile);

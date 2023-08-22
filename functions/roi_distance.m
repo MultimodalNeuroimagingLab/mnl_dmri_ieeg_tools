@@ -31,6 +31,7 @@ function dist=vecl2norm(mat,varargin) %euclidean distance function, can also use
 end
 
 nifti=niftiRead(roifile);
+nifti.data=round(nifti.data);
 if ischar(seg)
     % if seg is a string, we assume that the entire nifti is one
     % segmentation, thus we want nonzero datapoints
@@ -44,7 +45,6 @@ else
     upperbound=max(seg);
     lowerbound=min(seg);
     [rr,cc,vv] = ind2sub(size(nifti.data),find(nifti.data > lowerbound & nifti.data < upperbound));
-    
 end
 
 [xyz] = [rr cc vv ones(size(vv))] * nifti.qto_xyz'; %apply transformation matrix from roi file

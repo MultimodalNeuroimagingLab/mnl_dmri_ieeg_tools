@@ -15,11 +15,10 @@ h = ieeg_RenderGifti(g);
 %% Plot ROI
 
 %hippocampus=niftiRead(fullfile(bids_path,'BIDS_subjectsRaw','derivatives', 'freesurfer', ['sub-' sub_label], sub_label, 'mri', 'hippocampus_amygdala_lr_preproc.nii.gz' ));
-%renderROI(hippocampus, -32482);
-% -32676 is L hippocampus; -32482 is R hippocampus
+%renderROI(hippocampus, -32482); % -32676 is L hippocampus; -32482 is R hippocampus
 
 R_AD=niftiRead(fullfile(bids_path, 'BIDS_subjectsRaw', 'derivatives', 'leaddbs', ['sub-' sub_name], 'atlases', 'Morel_medium_5vox', 'rh', 'AD_preproc.nii')); 
-
+renderROI(R_AD, 'k')
 
 %% Adding electrodes
 

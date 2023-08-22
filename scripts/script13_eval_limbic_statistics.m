@@ -44,11 +44,18 @@ for ii=1:length(limbic_dist_stats)
     hippocampus_tail=[hippocampus_tail, tmp];
 end
 
-y=[hippocampus_body, hippocampus_tail];
+hippocampus_head=[];
+for ii=1:length(limbic_dist_stats)
+    tmp=limbic_dist_stats(ii).hippocampus_head_dist;
+    hippocampus_head=[hippocampus_head, tmp];
+end
+
+y=[hippocampus_body, hippocampus_tail, hippocampus_head];
 tail=repmat({'Tail'}, length(limbic_dist_stats), 1);
 body=repmat({'Body'}, length(limbic_dist_stats), 1);
-color=[body; tail];
-x=repmat(x, 1, 2);
+head=repmat({'Head'}, length(limbic_dist_stats), 1);
+color=[body; tail; head];
+x=repmat(x, 1, 3);
 
 g(1, 2)=gramm('x', x, 'y', y, 'color', color);
 g(1, 2).stat_summary('geom', {'area'});
