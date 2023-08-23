@@ -18,10 +18,10 @@ outpath=fullfile(bids_path,'BIDS_subjectsRaw', 'derivatives','figs',['sub-' sub_
 [valueMatrix, xyPairs, numValues] = analyzeStruct(el, length(el), length(el(1).trackstats));
 
 for ii=1:numValues
-    angles=[];
+    
+    angles=zeros(1, length(el(xyPairs(ii, 1)).trackstats(xyPairs(ii, 2)).angle));
     for jj=1:length(el(xyPairs(ii, 1)).trackstats(xyPairs(ii, 2)).angle)
-        tmp=el(xyPairs(ii, 1)).trackstats(xyPairs(ii, 2)).angle{jj};
-        angles=[tmp; angles];
+        angles(jj)=el(xyPairs(ii, 1)).trackstats(xyPairs(ii, 2)).angle{jj};
     end
 
 subplot(4, 4, ii)

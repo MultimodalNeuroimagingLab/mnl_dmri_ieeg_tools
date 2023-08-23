@@ -20,35 +20,17 @@ load(statspath);
 outpath=fullfile(bids_path, 'derivatives','stats',['sub-' sub_label]);
 
 %% Hippocampus
-hippocampus=[];
-for ii=1:length(limbic_dist_stats)
-    tmp=limbic_dist_stats(ii).hippocampus_dist;
-    hippocampus=[hippocampus, tmp];
-end
 
+hippocampus=[limbic_dist_stats.hippocampus_dist];
 x=electrodes;
 g(1, 1)=gramm('x', x, 'y', hippocampus);
 g(1, 1).stat_summary('geom', {'area'});
 g(1, 1).set_title(['Distance to Hippocampus sub-' sub_label]);
 g(1, 1).set_names('x','Electrode Contact','y', 'Distance (mm)');
 
-hippocampus_body=[];
-for ii=1:length(limbic_dist_stats)
-    tmp=limbic_dist_stats(ii).hippocampus_body_dist;
-    hippocampus_body=[hippocampus_body, tmp];
-end
-
-hippocampus_tail=[];
-for ii=1:length(limbic_dist_stats)
-    tmp=limbic_dist_stats(ii).hippocampus_tail_dist;
-    hippocampus_tail=[hippocampus_tail, tmp];
-end
-
-hippocampus_head=[];
-for ii=1:length(limbic_dist_stats)
-    tmp=limbic_dist_stats(ii).hippocampus_head_dist;
-    hippocampus_head=[hippocampus_head, tmp];
-end
+hippocampus_body=[limbic_dist_stats.hippocampus_body_dist];
+hippocampus_tail=[limbic_dist_stats.hippocampus_tail_dist];
+hippocampus_head=[limbic_dist_stats.hippocampus_head_dist];
 
 y=[hippocampus_body, hippocampus_tail, hippocampus_head];
 tail=repmat({'Tail'}, length(limbic_dist_stats), 1);
