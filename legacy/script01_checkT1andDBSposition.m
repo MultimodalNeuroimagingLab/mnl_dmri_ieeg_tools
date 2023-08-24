@@ -12,12 +12,14 @@ addpath(genpath(pwd));
 [my_subject_labels,bids_path] = dmri_subject_list();
 sub_label = my_subject_labels{5};
 
-electrodepositions = fullfile(bids_path,'sourcedata',['sub-' sub_label], 'positionsBrinkman','electrodes_loc1.mat');
+%electrodepositions = fullfile(bids_path,'sourcedata',['sub-' sub_label], 'positionsBrinkman','electrodes_loc1.mat');
+electrodepositions = fullfile(bids_path,'BIDS_subjectsRaw','derivatives', 'qsiprep', ['sub-' sub_label], ['sub-' sub_label '_ses-mri01_space-T1w_desc-qsiprep_electrodes.tsv']);
+
 load(electrodepositions);
  
 %% CHeck on T1 slice
-
-t1_name = fullfile(bids_path,'sourcedata',['sub-' sub_label], 'positionsBrinkman',['sub-' sub_label '_ses-mri01_T1w_acpc.nii.gz']);
+%t1_name = fullfile(bids_path,'sourcedata',['sub-' sub_label], 'positionsBrinkman',['sub-' sub_label '_ses-mri01_T1w_acpc.nii.gz']);
+t1_name = fullfile(bids_path,'BIDS_subjectsRaw','derivatives', 'qsiprep', ['sub-' sub_label], 'anat', ['sub-' sub_label '_desc-preproc_T1w.nii.gz']);
 % t1 = readFileNifti(t1_name);
 t1 = niftiRead(t1_name);
 brighten_T1 = .5; % 1 for nothing, .5 for everything above 50% of maximum is white

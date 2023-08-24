@@ -17,7 +17,7 @@ freesurfer_vers='export FREESURFER_HOME=/Applications/freesurfer/7.4.1';
 [my_subject_labels, bids_path]=dmri_subject_list();
 
 %Change my_subject_labels{#} to those preset in function. 
-sub_label=my_subject_labels{3};
+sub_label=my_subject_labels{5};
 
 %Create output directory
 outputdir = fullfile(bids_path, 'BIDS_subjectsRaw', 'derivatives', 'freesurfer', ['sub-' sub_label]);
@@ -28,6 +28,8 @@ env="source /Applications/freesurfer/7.4.1/SetUpFreeSurfer.sh";
 
 %Recon call; may need to adjust based on ses (i.e mri01 vs compact3T01)
 recon=['recon-all -s ' sub_label ' -i ' fullfile(bids_path, 'sourcedata', ['sub-' sub_label], 'positionsBrinkman', ['sub-' sub_label '_ses-mri01_T1w_acpc.nii -cw256 -all'])];
+recon=['recon-all -s ' sub_label ' -i ' fullfile(bids_path, 'sourcedata', ['sub-' sub_label], 'positionsBrinkman', ['sub-' sub_label '_ses-compact3T01_T1w_acpc.nii -cw256 -all'])];
+
 
 syscall=strjoin([freesurfer_vers '&&' env '&&' outputdir '&&' recon]);
 disp('Running system call in MATLAB instance')

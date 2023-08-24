@@ -1,14 +1,28 @@
 function upsampled_spline_points=upsample_points(varargin)
 
 %   Jordan Bilderbeek Jul 3
-
-%   A function that will linearly interpolate to upsample the linreg3 points with the extrapolated
-%   trajectory in order to ensure smooth plotting. Upsample factor can be
-%   increased (more comp time, but electrode tends to look visually better.
-
+%
+%   A function that will linearly interpolate to upsample the linreg3
+%   points with the extrapolated trajectory in order to ensure smooth 
+%   plotting. Upsample factor can be increased - more comp time, 
+%   but electrode tends to look visually better.
+%
 %   Upsample factor = 1000 can probably be used for nice figs. Also with
 %   boundary layer will take awhile. Turn to 10 if you just want to see the
 %   quick render. 
+%
+%   INPUTS:
+%       a) varagin{1} - list of electrode contact xyz that we want to
+%       linear interp between
+%       b) varargin{2} - upsample factor (amount of * we want to upsample
+%       the points
+%       c) varargin{3} - used as an input check via nargin to see if we
+%       want to call the optional plotter (default 'plot)
+%
+%   OUTPUTS:
+%       a) upsapmled_spline_points - arr of upsampled points
+%
+    
 
 %% Upsampling
 spline_points=varargin{1};

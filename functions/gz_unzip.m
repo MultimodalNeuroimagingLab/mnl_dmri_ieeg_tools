@@ -5,6 +5,17 @@ function [out_Ltracks, out_Rtracks]=gz_unzip(Ltracks, Rtracks)
 %   Helper function to unzip dsistudio track files and prep them for AFQ
 %   rendering. 
 
+%   INPUTS:
+%       a) Ltracks - cell array of fullpath track files for the left hemi
+%       b) Rtracks - cell array of fullpath track files for the right hemi
+%
+%   OUTPUTS:
+%       a) out_Ltracks - cell array of fullpath unzipped track files for
+%       left hemi
+%       b) out_Rtracks - cell array of fullpath unzipped track files for
+%       right hemi
+
+
 
 %% gz_unzip
 

@@ -2,14 +2,14 @@ function render_seeg_lead(electrode_positions, lead_size, ~)
 
 %   Jordan Bilderbeek June 9 2023
 %
-%   Inputs: electrode_positions, lead_size, extension_height
-%       electrode_positions is a N by 3 matrix [x,y,z] of the electrode
+%   INPUTS: electrode_positions, lead_size, extension_height
+%       a) electrode_positions is a N by 3 matrix [x,y,z] of the electrode
 %       coordinates. Can be retrieved from locs_info (tsv with electrode
 %       positions)
-%       lead_size is position between electrodes
-%       extension_height is the length for the extension portion of the
+%       b) lead_size is position between electrodes
+%       c) extension_height is the length for the extension portion of the
 %       lead that will extend out of the brain
-%   Usage: render_dbs_lead(elecmatrix(ismember(loc_info.name, els_plot'),
+%   USAGE: render_dbs_lead(elecmatrix(ismember(loc_info.name, els_plot'),
 %   :), 2, 10)
 %
 %   Where elecmatrix is the entire matrix of electrode position and
@@ -33,15 +33,12 @@ for i=1:5 %essentially upsampling the spline
     spline_fit=cscvn(spline_points);
     spline_points=fnplt(spline_fit);
 end
-
-
 %% Create lead
 hold on;
 
 % axisAngleToRotMat has similar functionality to axang2rotm in Navigation, Robotics or UAV toolbox
 % Rotation matrix R allows 3D point to be rotated around ax (axis) by theta
 % (angle)
-
     function R=axisAngleToRotMat(ax, theta) 
         ct=cos(theta);
         st=sin(theta);

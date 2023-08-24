@@ -1,27 +1,54 @@
-function render_dbs_lead(electrode_positions, lead_size, invlead)
+function render_dbs_lead(electrode_positions, lead_size, extrap_length, invlead)
 
-%   Jordan Bilderbeek June 19 2023
+%   Jordan Bilderbeek June 19 2023;
+%
+%   render_dbs_lead is the main heavylifting function that creates high
+%   quality visual leads from Nx3 arrays of electrode positions. Based on
+%   contacts, we find the principal component axis, and upsample the
+%   electrode position points along the line. We then create the lead by
+%   iterating through the upsampled points, finding the direction between
+%   them and creating an orthonormal rotation matrix. The rotation matrix
+%   is multiplied by a cone (cylinder) to transfer the XYZ positions of the
+%   cylinder into the appropriate rotation. We color the cones based on
+%   their proximity to the original electrode_positions. This process is
+%   repeated for an extrapolation layer, which visually, adds depth to the
+%   electrode. 
+% 
+%   INPUTS:
+%       a) electrode_positions - Nx3 array of electrode positions (xyz)
+%       b) lead_size - 1/2 the size of the electrode contact
+%       c) extrap_length - distance in mm for the length we want to add on
+%       the back of the last electrode contact level
+%       d) invlead - default 0-1. If 1 we invert the lead direction such
+%       that the extrap_length is flipped. 
+%
+%   Setup changes to variable names:
+%       a) lead_radius - generally .4 for sEEG and .635 for DBS electrodes
+%       we are plotting.
+%       b) upsample_factor - the amount we are upsampling the electrode
+%       positions. Upsample factors of 10 will give cheap, cone looking
+%       electrode contacts, but will be extremely quick. Used for visual
+%       checking. Most renders generally run on an upsample factor of 1000 
+%       c) encapsulation_radius - generally set to .2 greater than the lead
+%       radius. can be set to be smaller or larger
 
-%   Built from render_seeg_lead. We add an extrapolation via the spline
-%   fitting in order to add an extension that will exit the skull. As we 
-%   currently only plot the electrodes this is needed for DBS cases.
 
 %% Initialize 
-lead_radius=1; % in mm
-
+lead_radius=.4; % in mm for sEEG
+%lead_radius=.635; %in mm for DBS
 
 %% Fit the electrode positions and upsample
 
-figure(2)
-spline_points=linreg3(electrode_positions, 'plot');
+%figure(2)
+spline_points=linreg3(electrode_positions);
+%spline_points=sortrows(spline_points, 3, 'descend'); %assumes that leads have upward trajectory
 
-p1=spline_points(1,:);
-p2=spline_points(2,:);
+p1=spline_points(1,:); %get first point
+p2=spline_points(2,:); %get second point
 lead_direction=p2-p1;
 lead_direction=lead_direction/norm(lead_direction);
 
-extrap_length=45;
-if invlead==1
+if invlead %invert the lead if necessary
     extrap_point=spline_points(end,:) + extrap_length * lead_direction;
     spline_points=[spline_points; extrap_point];
 else
@@ -29,8 +56,8 @@ else
     spline_points=[extrap_point; spline_points];
 end
 
-upsample_factor=50;
-spline_points=upsample_points(spline_points, upsample_factor, 'plot');
+upsample_factor=1000;
+spline_points=upsample_points(spline_points, upsample_factor); %upsample points
 set(findall(gcf,'-property','FontSize'),'FontSize',24)
 %% Create lead
 
@@ -52,7 +79,7 @@ hold on;
     end
 
 encapsulation_radius=lead_radius + .2; %.2mm larger than normal
-encapsulation_color=[.725 .725 .768];
+encapsulation_color=[.725 .725 .768]; %color of encapsulation layer
 encapsulation_transparency = .1;
 
 for ii=1:size(spline_points, 2)-1
@@ -66,7 +93,7 @@ for ii=1:size(spline_points, 2)-1
     theta=acos(dot([0 0 -1], dir));
     R=axisAngleToRotMat(ax, theta); %create orthonormal rotation matrix
     
-    [X, Y, Z]=cylinder([0 lead_radius], 50);
+    [X, Y, Z]=cylinder([0 lead_radius], 50); %will create cone object
     Z=Z*len;
         for jj=1:numel(X)
             vec=R * [X(jj) Y(jj) Z(jj)]';
@@ -76,10 +103,10 @@ for ii=1:size(spline_points, 2)-1
         end
     line_segment=surf(X+p1(1), Y+p1(2), Z+p1(3));
     
-    dists=vecnorm((electrode_positions - p1'), 2, 2);
-    [closest_dist, ~]=min(dists);
+    dists=vecnorm((electrode_positions - p1'), 2, 2); %euclidean distance to all electrode positions, find which one we are closest to and the distance
+    [closest_dist, ~]=min(dists); %distance to nearest electrode position
     
-    if closest_dist <= lead_size
+    if closest_dist <= lead_size %because euclidean distance, lead_size must be 1/2 the contact length
         set(line_segment, 'FaceColor', 'k', 'EdgeColor', 'k'); %Used for any line segments that are close to the electrode center
     else
         set(line_segment, 'FaceColor', [.75, .75, .75], 'EdgeColor', [.75, .75, .75]); %Used for any line segments that are not close to the electrode center
@@ -87,6 +114,7 @@ for ii=1:size(spline_points, 2)-1
 
 %% Create encapsulation layer
     
+%generally a repear from above for the encapsulation layer. 
     [x_encap, y_encap, z_encap]=cylinder([0, encapsulation_radius], 50);
     z_encap=z_encap*len;
     for kk=1:numel(x_encap)
@@ -114,7 +142,7 @@ dir=dir/norm(dir);
 
 ax=cross([0 0 -1], dir);
 ax=ax/norm(ax);
-theta=acos(dot([0 0 -1], dir)); % Where lines 84-85 will adjust the direction and angle
+theta=acos(dot([0 0 -1], dir));
 R=axisAngleToRotMat(ax, theta); %create orthonormal rotation matrix
 
 [X,Y,Z]=sphere();
