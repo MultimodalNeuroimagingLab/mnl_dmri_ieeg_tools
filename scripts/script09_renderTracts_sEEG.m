@@ -1,8 +1,12 @@
 
 %   Jordan Bilderbeek July 21 2023
-
+%
 %   Script to render multiplel sEEG electrode leads with tracks. Prompts for user
-%   input. Allows for comma sep values, ex: 'RB, RC, LA'
+%   input. Allows for comma sep values, ex: 'RB, RC, LA.' Mainly used
+%   within the limbic project (not RCpS)
+%
+
+
 
 %% Changeables / initialize
 close all;
