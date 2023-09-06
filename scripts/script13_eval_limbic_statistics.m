@@ -9,7 +9,7 @@
 %%
 clear all; close all;
 
-subnum=6;
+subnum=7;
 [sub_label,bids_path, electrodes, tracks] = limbic_subject_library(subnum);
 
 % Where we are loading struct from

@@ -59,6 +59,16 @@ switch subnum
         electrodes={'RB1', 'RB2', 'RB3', 'RB4', 'RB5', 'RC2', 'RC3', 'RC4', 'RC5', 'RY3', 'RY4', 'RY5', 'RY6', 'RY7', 'RZ1', 'RZ2', 'RZ3'};
         [~, tracks]=getDSItracks(dsipath, 'no gz');
         elpair={};
+    case 7
+        electrodes={'RB1', 'RB2', 'RB3', 'RB3', 'RB4', 'RB5', 'RB6', 'RC1', 'RC2', 'RC3', 'RC4', 'RQ1', 'RQ2', 'RQ3', 'RQ4', 'RQ5', 'RQ6', 'RZ1', 'RZ2', 'RZ3', 'RZ4', 'RZ5'}; 
+        [~, tracks]=getDSItracks(dsipath, 'no gz');
+        elpair={};
+    case 8
+        electrodes={};
+        [~, tracks]=getDSItracks(dsipath);
+        elpair={};
+        
+  
 end
 
 

@@ -9,7 +9,7 @@
 %   hippocampus_amygdala_lr_preproc.nii.gz file. 
 
 %% load subject
-subnum=1;
+subnum=7;
 [sub_name,bids_path, ~, ~] = limbic_subject_library(subnum);
 
 segmentFile=fullfile(bids_path, 'derivatives', 'freesurfer', ['sub-' sub_name], 'mri', 'aparc.a2009s+aseg.mgz');

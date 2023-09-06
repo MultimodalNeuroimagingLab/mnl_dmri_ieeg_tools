@@ -2,7 +2,7 @@
 %
 %   A script to evaluate the values that we calculate in
 %   script08_calc_statistics. Currently supports plotting using the gramm
-%   toolbox (ggplot like plotting). 
+%   toolbox (ggplot like plotting). For RCpS
 %
 
 subnum=2;

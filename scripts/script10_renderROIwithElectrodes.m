@@ -1,3 +1,5 @@
+% For RCpS
+
 setMyMatlabPaths;
 addpath(genpath(pwd));
 subnum=1;
