@@ -11,7 +11,7 @@
 %
 
 %% Find subject data
-subnum=6;
+subnum=7;
 
 % limbic_subject_library generates:
 % a) electrodes - cell array of alphanumeric electrode positions that map

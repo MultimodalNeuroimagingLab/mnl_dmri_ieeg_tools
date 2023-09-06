@@ -21,7 +21,7 @@
 clear all;
 close all;
 
-subnum=4;
+subnum=1;
 [my_subject_labels,bids_path] = dmri_subject_list();
 sub_label = my_subject_labels{subnum};
 dsipath=fullfile(bids_path,'BIDS_subjectsRaw', 'derivatives','dsistudio',['sub-' sub_label]);
