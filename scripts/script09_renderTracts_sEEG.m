@@ -1,15 +1,18 @@
 
 %   Jordan Bilderbeek July 21 2023
-
-%   Script to render one sEEG electrode lead with tracks. Prompts for user
-%   input.
 %
-%   Future: allow comma sep values for input
+%   Script to render multiplel sEEG electrode leads with tracks. Prompts for user
+%   input. Allows for comma sep values, ex: 'RB, RC, LA.' Mainly used
+%   within the limbic project (not RCpS)
+%
+
+
 
 %% Changeables / initialize
 close all;
 
-color={[0 .0706 .0980], [0 .3725 .4510], [.5804 .8235 .7412], [.9137 .8471 .6510], [0.9333 0.6078 0], [0.7922 0.4039 0.0078], [0.6824 0.1255 0.0706]};
+color={'#D00000', '#3185FC', '#FFBA08', '#5D2E8C', '#CBFF8C', '#46237A', '#8FE388', '#FF7B9C', '#1B998B', '#FF9B85'};
+color=validatecolor(color, 'multiple');
 setMyMatlabPaths;
 addpath(genpath(pwd));
 subnum=6;
@@ -29,39 +32,58 @@ switch sub_label
         dwi_file = fullfile(bids_path, 'derivatives', 'qsiprep', ['sub-' sub_label],'ses-mri01','dwi',['sub-' sub_label '_ses-mri01_acq-axdti_space-T1w_desc-preproc_dwi.nii.gz']);
     otherwise
         dwi_file = fullfile(bids_path, 'derivatives', 'qsiprep', ['sub-' sub_label],'ses-compact3T01','dwi',['sub-' sub_label '_ses-compact3T01_acq-diadem_space-T1w_desc-preproc_dwi.nii.gz']);
-
 end
+
 ni_dwi = niftiRead(dwi_file);
 fg_fromtrk = [];
 figure();
-switch tag % -32676 is L hippocampus; -32482 is R hippocampus
+
+switch tag % -17 is L hippocampus; -53 is R hippocampus
     case 'L'
         [fg_fromtrk]=create_trkstruct(ni_dwi, tracks);
         g = gifti(fullfile(bids_path,'derivatives', 'qsiprep', ['sub-' sub_label],'pial_desc-qsiprep.L.surf.gii'));
-        hippocampus=niftiRead(fullfile(bids_path,'derivatives', 'freesurfer', ['sub-' sub_label], 'mri', 'hippocampus_amygdala_lr_preproc.nii.gz' ));
         h = ieeg_RenderGifti(g); 
-        hold on
-        hip=renderROI(hippocampus, color{7}, -32676);
+        
+        for ii=1:length(fg_fromtrk)
+            hold on;
+            AFQ_RenderFibers(fg_fromtrk(ii),'numfibers',600,'color',color(ii, :),'newfig', false);
+        end
+
+        try
+            hippocampus=niftiRead(fullfile(bids_path,'derivatives', 'freesurfer', ['sub-' sub_label], 'mri', 'rhippocampus_amygdala_lr_preproc.nii' ));
+            hold on
+            hip=renderROI(hippocampus, color(7, :), 17);
+        catch
+            disp('No hippocampus file')
+        end
 
     case 'R'
         [fg_fromtrk]=create_trkstruct(ni_dwi, tracks);
         g = gifti(fullfile(bids_path,'derivatives', 'qsiprep',['sub-' sub_label],'pial_desc-qsiprep.R.surf.gii'));
-        hippocampus=niftiRead(fullfile(bids_path,'derivatives', 'freesurfer', ['sub-' sub_label], 'mri', 'hippocampus_amygdala_lr_preproc.nii.gz' ));
         h = ieeg_RenderGifti(g); 
-        hold on
-        hip=renderROI(hippocampus, color{7}, -32482);
+        
+        for ii=1:length(fg_fromtrk)
+            hold on;
+            AFQ_RenderFibers(fg_fromtrk(ii),'numfibers',600,'color',color(ii, :),'newfig', false);
+        end
+        
+        try
+            hippocampus=niftiRead(fullfile(bids_path,'derivatives', 'freesurfer', ['sub-' sub_label], 'mri', 'rhippocampus_amygdala_lr_preproc.nii' ));
+            hold on
+            hip=renderROI(hippocampus, color(7, :), 53);
+        catch
+            disp('No hippocampus file')
+        end
 end
 
-%% Render tracks and plot leads
-
-%Render all the DTI tracks. Color can be changed:
-for ii=1:length(fg_fromtrk)
-    AFQ_RenderFibers(fg_fromtrk(ii),'numfibers',300,'color',color{ii},'newfig', false);
-end
-
+%% Plot leads
 for ii=1:length(coords)
     %render_dbs_lead(coords(ii).positions, .75, 46.6, 0)
     addElectrode(coords(ii).positions, 'b', 0, 0.2)
 end
 
-hip.FaceAlpha=.5;
+try
+    hip.FaceAlpha=.5;
+catch
+    disp('No hip alpha to change')
+end
