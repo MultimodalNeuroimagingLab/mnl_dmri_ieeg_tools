@@ -1,4 +1,4 @@
-function dynamic_tractography(coord_arr, elec_pos, speed, dt_ms)
+function dynamic_tractography(coord_arr, elec_pos, speed)
 
 %   Jordan Bilderbeek September 6 2023
 %
@@ -15,15 +15,24 @@ function dynamic_tractography(coord_arr, elec_pos, speed, dt_ms)
 %   latency calculation. 
 %   
 %   INPUTS:
-%       a) coord_arr
-%       b) elec_pos
-%       c) speed (in mm/ms -- the same as m/s)
-%       d) dt_ms (time step for visualization)
+%       a) coord_arr - Nx1 cell array where each cell contains a 3xN single
+%       of XYZ positions. Can be taken from create_trkstruct and indexed
+%       ex coord_arr=fg_fromtrk(n).fibers
+%       b) elec_pos - 1x3 double that corresponds to XYZ position of the
+%       electrode contact giving stimulation
+%       c) speed - estimated transmission speed (in mm/ms -- the same as
+%       m/s). Based on a distance calculation in script14_dist_btwn_pairs
+%       and latency estimation.
 
-euclidean_distances=zeros(2, length(coord_arr));
-dist_2_elec=zeros(1, length(coord_arr));
-dist_inter_bisect_to_start=cell(1, length(coord_arr));
-dist_inter_bisect_to_end=cell(1, length(coord_arr));
+num_upsample=1000;
+% Gather figure limits to display timing tag
+xL=xlim;
+yL=ylim;
+zL=zlim;
+
+euclidean_distances=NaN(length(coord_arr), 2);
+dist_2_elec=zeros(length(coord_arr), 1);
+bisect_spline=NaN(length(coord_arr), 2, 4, num_upsample); %where NxNx1:3xN is the coords and NxNx4xN is times
 
 for calc_distances=1:length(coord_arr)
 
@@ -31,97 +40,100 @@ for calc_distances=1:length(coord_arr)
         % position to every point along the coord_arr. Then find the
         % minimum and the index (to bisect the line). 
         xyz=coord_arr{calc_distances};
-        dist=vecnorm(bsxfun(@minus, xyz', elec_pos'));  
+        dist=vecnorm(bsxfun(@minus, xyz, elec_pos'));  
         [dist_2_elec(calc_distances), bisect_ind]=min(dist);
 
         %From the bisect index, then find the distance along the tracks. We
         %also find the inder distance, which is the interval distance
-        %between two points. Will be valuable when we want to figure out
+        %between two points (not needed anymore). Will be valuable when we want to figure out
         %how to move spheres along the points. 
-        [dist_start_to_bisect, dist_inter_bisect_to_start{calc_distances}]=trk_distance(xyz(1:bisect_ind, 1), xyz(1:bisect_ind, 2), xyz(1:bisect_ind, 3), 0);
-        [dist_bisect_to_end, dist_inter_bisect_to_end{calc_distances}]=trk_distance(xyz(bisect_ind:end, 1), xyz(bisect_ind:end, 2), xyz(bisect_ind:end, 3), 0);
+        [dist_start_to_bisect, ~]=trk_distance(xyz(1, 1:bisect_ind), xyz(2, 1:bisect_ind), xyz(3, 1:bisect_ind), 0);
+        [dist_bisect_to_end, ~]=trk_distance(xyz(1, bisect_ind:end), xyz(2, bisect_ind:end), xyz(3, bisect_ind:end), 0);
        
         % Assign distaces to the euclidean_distances out structure. If the
         % distance from start to bisect is less than 3mm, then there is no
         % reason to visualize that side and we can only do the long side of
-        % the bisection. 
-
-        if dist_start_to_bisect<3
-            euclidean_distances(1, calc_distances)=NaN;
-        else
-            euclidean_distances(1, calc_distances)=dist_start_to_bisect + dist_2_elec(calc_distances);
+        % the bisection. If not NaN, we'll fit a spline and upsample such
+        % that we get the same number of samples for each track.  
+        
+        if dist_start_to_bisect>3
+            
+            % Where the euclidean distances structure saves BOTH the
+            % electrode to bisection point, and then bisect point to the
+            % endpoint
+            
+            euclidean_distances(calc_distances, 1)=dist_start_to_bisect + dist_2_elec(calc_distances);
+            
+            % Create composite spline that starts at the electrode position,
+            % then moves along each side of the bisected track. We dont make
+            % the spline if we have a NaN in the euclidean distance (side
+            % dependent). Set the spline to be an upsample ~1000 points. 
+            
+            spline=cscvn([elec_pos', fliplr(xyz(:, 1:bisect_ind))]); %N.B need to go from bisect_ind -> first index
+            breaks=spline.breaks;
+            parameter=linspace(min(breaks), max(breaks), num_upsample); %if we set unit interval will fail
+            %parameter=linspace(0, 1, num_upsample); %[0 1] is unit interval parameterization
+            bisect_spline(calc_distances, 1, 1:3, :)=ppval(spline, parameter);
         end
 
-        if dist_bisect_to_end<3
-            euclidean_distances(2, calc_distances)=NaN;
-        else
-            euclidean_distances(2, calc_distances)=dist_bisect_to_end + dist_2_elec(calc_distances);
-        end
+            % Reapeat for other bisection, assign spline to Nx2xNxN
+        if dist_bisect_to_end>3
+            euclidean_distances(calc_distances, 2)=dist_bisect_to_end + dist_2_elec(calc_distances);
+            spline=cscvn([elec_pos', xyz(:, bisect_ind:end)]);
+            breaks=spline.breaks;
+            parameter=linspace(min(breaks), max(breaks), num_upsample);
+            bisect_spline(calc_distances, 2, 1:3, :)=ppval(spline, parameter);
+        end       
 end
 
-% Calculate the total distance for each streamline segment
-    total_distances = cellfun(@(d1, d2) sum([d1, d2]), dist_inter_bisect_to_start, dist_inter_bisect_to_end);
+step_size=euclidean_distances/num_upsample; % Find the step size (in mm/step)
+ms_step=1/speed * step_size; % Find the number of ms in one step
 
-    % Calculate the time required to traverse each segment at the given speed
-    traverse_times = total_distances / speed;
+for numtrks=1:length(ms_step) % Figure out the ms spacing
+    bisect_spline(numtrks, 1, 4, :)=0:ms_step(numtrks, 1):(num_upsample-1)*ms_step(numtrks, 1);
+    bisect_spline(numtrks, 2, 4, :)=0:ms_step(numtrks, 2):(num_upsample-1)*ms_step(numtrks, 2);
+end
 
-    % Calculate the number of steps for each segment based on dt_ms
-    num_steps = round(traverse_times / dt_ms);
+% Squeeze and cat both sides of the bisection
+both_bisect_spline=squeeze(cat(1, bisect_spline(:, 1, :, :), bisect_spline(:, 2, :, :))); 
 
-    % Initialize sphere positions for each segment
-    sphere_positions = cell(size(coord_arr));
+% Permute to arrange dimensions, then reshape
+permute_mat=permute(both_bisect_spline, [2 1 3]);
+pos_time_mat=reshape(permute_mat, size(permute_mat, 1), [])';
 
-    % Calculate the starting time offset for each segment based on dist_2_elec
-    time_offsets = dist_2_elec / speed;
+% Sort the rows based on time the points need to be plotted
+pos_time_mat_sorted=sortrows(pos_time_mat, 4);
 
-    % Initialize a figure for visualization
-    figure;
-    hold on;
-    grid on;
-    xlabel('X (mm)');
-    ylabel('Y (mm)');
-    zlabel('Z (mm)');
+% Remove missing
+sorted_data=rmmissing(pos_time_mat_sorted);
 
-    % Main simulation loop
-    for step = 1:max(num_steps)
-        for calc_distances = 1:length(coord_arr)
-            if step > time_offsets(calc_distances) / dt_ms && step <= num_steps(calc_distances)
-                % Calculate the interpolation factor for the current step
-                interp_factor_forward = (step - time_offsets(calc_distances) / dt_ms) / num_steps(calc_distances);
-                interp_factor_backward = 1 - interp_factor_forward;
+% Round the sorted time. If we dont round, then all of the points will be
+% plotted at different intervals (i.e if something needs to be plotted at
+% .3045ms and another at .3046ms we loop through twice -- inneficient and
+% causes the appearance to look odd as they dont appear to be moving
+% uniformly. round(data, num_after_decimal)
+time_sorted=round(sorted_data(:, 4), 1);
 
-                % Check if euclidean_distances is NaN for position 1 or 2
-                if isnan(euclidean_distances(1, calc_distances))
-                    current_position_forward = [];
-                else
-                    % Interpolate the sphere position along the segment in the forward direction
-                    xyz = coord_arr{calc_distances};
-                    current_position_forward = interp1(linspace(0, 1, size(xyz, 1)), xyz, interp_factor_forward);
-                end
+currentIndex=1;
+hold on;
+while currentIndex <= size(sorted_data, 1)
+    
+    % Find the rounded times that match, if they do, we plot the scatter at
+    % the same time. 
+    sameTimeIndices=find(time_sorted == time_sorted(currentIndex));
 
-                if isnan(euclidean_distances(2, calc_distances))
-                    current_position_backward = [];
-                else
-                    % Interpolate the sphere position along the segment in the backward direction
-                    xyz = coord_arr{calc_distances};
-                    current_position_backward = interp1(linspace(0, 1, size(xyz, 1)), xyz, interp_factor_backward);
-                end
+    % Plot the scatter points, making them yellow, and large. Add text to
+    % detail what the timing is. The realtime output will be running as
+    % fast as MATLAB can plot the scatters, but the timing update will give
+    % the raw time in ms for accuracy. 
+    h=scatter3(sorted_data(sameTimeIndices, 1), sorted_data(sameTimeIndices, 2), sorted_data(sameTimeIndices, 3), 200, [1 1 0], 'filled', 'MarkerFaceAlpha', 1, 'MarkerEdgeAlpha', 1); drawnow;
+    htext=text(round(.99*xL(2)), round(.99*yL(2)), round(.99*zL(2)), ['      ' ... 
+        num2str(time_sorted(currentIndex)) ' ms'], 'Color', 'blue', 'FontSize', 10, 'HorizontalAlignment', 'left'); drawnow;
+    
+    delete(h); clear h; delete(htext), clear htext;
+    currentIndex=currentIndex+length(sameTimeIndices);
 
-                % Update and plot the sphere positions
-                sphere_positions{calc_distances} = [current_position_forward; current_position_backward];
-
-                % Plot the spheres (customize the appearance as needed)
-                if ~isempty(current_position_forward)
-                    plot3(current_position_forward(1), current_position_forward(2), current_position_forward(3), 'o', 'MarkerSize', 10, 'MarkerFaceColor', 'b', 'MarkerEdgeColor', 'k');
-                end
-                if ~isempty(current_position_backward)
-                    plot3(current_position_backward(1), current_position_backward(2), current_position_backward(3), 'o', 'MarkerSize', 10, 'MarkerFaceColor', 'r', 'MarkerEdgeColor', 'k');
-                end
-            end
-        end
-
-        % Pause for visualization (adjust as needed)
-        pause(dt_ms / 1000);
-    end
+end
+end
 
 
