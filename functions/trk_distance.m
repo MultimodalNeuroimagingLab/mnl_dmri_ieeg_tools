@@ -1,4 +1,4 @@
-function [total_distance] = trk_distance(x, y, z, plot)
+function [total_distance, distances] = trk_distance(x, y, z, plot)
 
 %   Jordan Bilderbeek August 4 2023
 %
@@ -47,5 +47,6 @@ if plot==1
     zlabel('Z (mm)');
 end
 
+distances={distances};
 end
 
