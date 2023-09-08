@@ -13,6 +13,9 @@ function dynamic_tractography(coord_arr, elec_pos, speed)
 %   coord_arr so that we can move through it at some speed and time step 
 %   (dt_ms). We can make spheres that traverse the tracks based on a
 %   latency calculation. 
+%
+%   Requirements: requires a gifti with track to already be plotted as
+%   current figure
 %   
 %   INPUTS:
 %       a) coord_arr - Nx1 cell array where each cell contains a 3xN single
@@ -23,6 +26,10 @@ function dynamic_tractography(coord_arr, elec_pos, speed)
 %       c) speed - estimated transmission speed (in mm/ms -- the same as
 %       m/s). Based on a distance calculation in script14_dist_btwn_pairs
 %       and latency estimation.
+%
+%   OUTPUTS: 
+%       a) saves a video to the desktop ~/Desktop/dynamic_tractography.mp4
+%       displaying the stim pulse moving with a given speed
 
 num_upsample=1000;
 % Gather figure limits to display timing tag
@@ -70,8 +77,7 @@ for calc_distances=1:length(coord_arr)
             % dependent). Set the spline to be an upsample ~1000 points. 
             
             spline=cscvn([elec_pos', fliplr(xyz(:, 1:bisect_ind))]); %N.B need to go from bisect_ind -> first index
-            breaks=spline.breaks;
-            parameter=linspace(min(breaks), max(breaks), num_upsample); %if we set unit interval will fail
+            parameter=linspace(min(spline.breaks), max(spline.breaks), num_upsample); %if we set unit interval will fail
             %parameter=linspace(0, 1, num_upsample); %[0 1] is unit interval parameterization
             bisect_spline(calc_distances, 1, 1:3, :)=ppval(spline, parameter);
         end
@@ -80,16 +86,16 @@ for calc_distances=1:length(coord_arr)
         if dist_bisect_to_end>3
             euclidean_distances(calc_distances, 2)=dist_bisect_to_end + dist_2_elec(calc_distances);
             spline=cscvn([elec_pos', xyz(:, bisect_ind:end)]);
-            breaks=spline.breaks;
-            parameter=linspace(min(breaks), max(breaks), num_upsample);
+            parameter=linspace(min(spline.breaks), max(spline.breaks), num_upsample);
             bisect_spline(calc_distances, 2, 1:3, :)=ppval(spline, parameter);
         end       
 end
 
-step_size=euclidean_distances/num_upsample; % Find the step size (in mm/step)
-ms_step=1/speed * step_size; % Find the number of ms in one step
-
-for numtrks=1:length(ms_step) % Figure out the ms spacing
+% Where euclidean_distances/num_upsample is the step size. Multiplying by
+% 1/speed gets the number of ms in one step. Once we have the number of ms
+% in one step, we can assign times to the spline points. 
+ms_step=1/speed * (euclidean_distances/num_upsample);
+for numtrks=1:length(ms_step)
     bisect_spline(numtrks, 1, 4, :)=0:ms_step(numtrks, 1):(num_upsample-1)*ms_step(numtrks, 1);
     bisect_spline(numtrks, 2, 4, :)=0:ms_step(numtrks, 2):(num_upsample-1)*ms_step(numtrks, 2);
 end
@@ -104,7 +110,7 @@ pos_time_mat=reshape(permute_mat, size(permute_mat, 1), [])';
 % Sort the rows based on time the points need to be plotted
 pos_time_mat_sorted=sortrows(pos_time_mat, 4);
 
-% Remove missing
+% Remove NaNs due to the bisection being within 3mm of an endpoint
 sorted_data=rmmissing(pos_time_mat_sorted);
 
 % Round the sorted time. If we dont round, then all of the points will be
@@ -116,6 +122,13 @@ time_sorted=round(sorted_data(:, 4), 1);
 
 currentIndex=1;
 hold on;
+
+% Set up the video writer - direct path to desktop, save as MP4. As the
+% visualization will take some time -> assuming speed is around 1m/s, we
+% set a high frame rate to speed up the movie. 
+outputVideo=VideoWriter('~/Desktop/dynamic_tractography.mp4', 'MPEG-4');
+outputVideo.FrameRate=90;
+open(outputVideo);
 while currentIndex <= size(sorted_data, 1)
     
     % Find the rounded times that match, if they do, we plot the scatter at
@@ -130,10 +143,21 @@ while currentIndex <= size(sorted_data, 1)
     htext=text(round(.99*xL(2)), round(.99*yL(2)), round(.99*zL(2)), ['      ' ... 
         num2str(time_sorted(currentIndex)) ' ms'], 'Color', 'blue', 'FontSize', 10, 'HorizontalAlignment', 'left'); drawnow;
     
+    frame=getframe(gcf);
+    writeVideo(outputVideo, frame);
+    
+    % Delete and clear the handles for the scatter plot and the text
+    % displaying the time. Then update the indexes for the loop. 
     delete(h); clear h; delete(htext), clear htext;
     currentIndex=currentIndex+length(sameTimeIndices);
 
 end
+
+% Get empty frame at the end of the movie, close the video, and save to the
+% given path.
+frame=getframe(gcf);
+writeVideo(outputVideo, frame);
+close(outputVideo);
 end
 
 
