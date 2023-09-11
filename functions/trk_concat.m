@@ -31,7 +31,6 @@ function fib = trk_concat(trk_struct, elec, varargin)
     %       first trk may be flipped to give you the start closest to the
     %       electrode position (ideal stim location). 
     %
-    %
     % OUTPUTS:
     %       a) fib- array of cells that have 3xN coordinates, which can
     %       then be input into the dynamic tractography function. 
@@ -84,7 +83,43 @@ function fib = trk_concat(trk_struct, elec, varargin)
 
     % Problem: we need to know the order in which we concat, when we reduce
     % the length we need to add some form of indexing, maybe in a 2x1 cell
-    % with their position to be concatenated?
+    % with their position to be concatenated.
+
+     dist=vecnorm(bsxfun(@minus, fib, elec'));  
+     [~, bisect_ind]=min(dist);
+    
+     % Initialize an array to keep track of which tracts have been used
+    used_tracts = false(1, length(trk_struct_ind));
+    used_tracts(bisect_ind) = true;
+
+    while sum(used_tracts) < length(trk_struct_ind)
+        % Find the closest endpoint of the current tract to the last tract's endpoint
+        start_point = final_fib(:, end);
+
+        for ii = 1:length(trk_struct_ind)
+            if used_tracts(ii)
+                continue; % Skip already used tracts
+            end
+
+            current_fibers = fib{ii};
+            
+            % Calculate the distances from the start point to all endpoints
+            endpoint_distances = vecnorm(current_fibers - start_point');
+            
+            % Find the index of the endpoint closest to the start point
+            [~, closest_endpoint_ind] = min(endpoint_distances);
+            
+            % Concatenate the current tract to the final tract
+            final_fib = [final_fib, current_fibers(:, closest_endpoint_ind:end)];
+            
+            % Mark this tract as used
+            used_tracts(ii) = true;
+        end
+    end
+
+
+
+
 
 
 
