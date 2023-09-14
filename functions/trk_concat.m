@@ -69,59 +69,67 @@ function fib = trk_concat(trk_struct, elec, varargin)
     % Pull out the shortest number of streamlines and eliminate it from the
     % numfibers arr. 
     [minlength, ind]=min(numfibers);
-    shortestfib=trk_struct(trk_struct_ind(ind)).fibers;
-    
-    numfibers(ind)=[];
-    trk_struct_ind(ind)=[];
-   
     fib=cell(1, length(trk_struct_ind));
-    for ii=1:length(trk_struct_ind) 
-        random_indices=randperm(numfibers(ii));
-        fibers=trk_struct(trk_struct_ind(ii)).fibers;
-        fib{ii}=fibers(random_indices(1:minlength));
+    fib{ind}=trk_struct(trk_struct_ind(ind)).fibers;
+    
+    % Reformat the numfibers and trk_struct_ind by getting rid of the
+    % shortest fiber. Save the original as concat_ind.
+    concat_ind=trk_struct_ind;
+    numfibers(ind)=NaN;
+    trk_struct_ind(ind)=NaN;
+    
+    % Shorten the other tracks such that they have the same number of
+    % streamlines and assign them to the fib variable. Use fibassignment to
+    % get the correct ind based on the for loop. 
+    fibassignment=find(concat_ind==trk_struct_ind);
+    for ii=1:length(trk_struct_ind)-1
+        random_indices=randperm(numfibers(fibassignment(ii)));
+        fibers=trk_struct(trk_struct_ind(fibassignment(ii))).fibers;
+        fib{fibassignment(ii)}=fibers(random_indices(1:minlength));
     end
 
-    % Problem: we need to know the order in which we concat, when we reduce
-    % the length we need to add some form of indexing, maybe in a 2x1 cell
-    % with their position to be concatenated.
-
-     dist=vecnorm(bsxfun(@minus, fib, elec'));  
-     [~, bisect_ind]=min(dist);
+    % Now, lets find the closes point to the electrode on the first
+    % streamline. Then we need to reorder the streamlines if they are
+    % flipped. We can then concatenate. 
+    concat_fib=cell(1, length(fib{1}));
+    for ii=1:length(fib{1})
+        dist=vecnorm(bsxfun(@minus, fib{1}{ii}, elec'));  
+        [~, closestpt]=min(dist);
+        numpt=length(dist);
+        
+        if closestpt > numpt/2
+            fib{1}{ii}=fliplr(fib{1}{ii});
+        end  
+        
+        concat_fib{ii}=[fib{1}{ii}];
+    end
     
-     % Initialize an array to keep track of which tracts have been used
-    used_tracts = false(1, length(trk_struct_ind));
-    used_tracts(bisect_ind) = true;
-
-    while sum(used_tracts) < length(trk_struct_ind)
-        % Find the closest endpoint of the current tract to the last tract's endpoint
-        start_point = final_fib(:, end);
-
-        for ii = 1:length(trk_struct_ind)
-            if used_tracts(ii)
-                continue; % Skip already used tracts
+    % We perform a similar procedure than before, now we loop through the
+    % other tracks and instead we find the endpoint of the previous to do
+    % the distance to. 
+    
+    for ii=2:length(fib)
+        for jj=1:length(fib{ii})
+            
+            endval=concat_fib{jj}(:,end);
+            dist=vecnorm(bsxfun(@minus, fib{ii}{jj}, endval));  
+            
+            if min(dist) > 40 % if the distance from an endpoint to a new fiber is greater than 20mm we assume that the streamline is not coherent
+                concat_fib{jj}=[];
+                continue
             end
-
-            current_fibers = fib{ii};
             
-            % Calculate the distances from the start point to all endpoints
-            endpoint_distances = vecnorm(current_fibers - start_point');
-            
-            % Find the index of the endpoint closest to the start point
-            [~, closest_endpoint_ind] = min(endpoint_distances);
-            
-            % Concatenate the current tract to the final tract
-            final_fib = [final_fib, current_fibers(:, closest_endpoint_ind:end)];
-            
-            % Mark this tract as used
-            used_tracts(ii) = true;
+            [~, closestpt]=min(dist);
+            numpt=length(dist);
+        
+            if closestpt > numpt/2
+                fib{ii}{jj}=fliplr(fib{ii}{jj});
+            end  
+        
+        concat_fib{jj}=[concat_fib{jj}, fib{ii}{jj}];
         end
     end
-
-
-
-
-
-
-
+        
+fib=concat_fib;
 end
 
