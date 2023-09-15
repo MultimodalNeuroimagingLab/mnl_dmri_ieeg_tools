@@ -1,5 +1,5 @@
 [my_subject_labels,bids_path] = dmri_subject_list();
-thresh=[17, 18, 53, 54];
+
 
 %% Write MRIcroGL script
 
@@ -7,16 +7,23 @@ for ii=1:length(my_subject_labels)
 
     % Lets first segment the data. We'll make the hippocampus and amygdala
     % the same color bilaterally. 
-
     sub_label=my_subject_labels{ii};
+
+    %Write the thresh out seperately for hippocampus and amygdala
     img=niftiRead(fullfile(bids_path,'BIDS_subjectsRaw', 'derivatives', 'freesurfer', ['sub-' sub_label], sub_label, 'mri', 'hippocampus_amygdala_lr.nii.gz'));
     img.data=double(img.data);
+    thresh=[17, 53]; %hippocampus
     img.data(~ismember(img.data, thresh))=nan;
-    img.data(ismember(img.data, thresh(1)))=1;
-    img.data(ismember(img.data, thresh(2)))=2;
-    img.data(ismember(img.data, thresh(3)))=1;
-    img.data(ismember(img.data, thresh(4)))=2;
-    niftiWrite(img, fullfile(bids_path,'BIDS_subjectsRaw', 'derivatives', 'freesurfer', ['sub-' sub_label], sub_label, 'mri', 'hippocampus_amygdala_lr_seg.nii.gz'));
+    img.data(ismember(img.data, thresh))=1;
+    niftiWrite(img, fullfile(bids_path,'BIDS_subjectsRaw', 'derivatives', 'freesurfer', ['sub-' sub_label], sub_label, 'mri', 'hippocampus_seg_binary.nii.gz'));
+
+
+    img=niftiRead(fullfile(bids_path,'BIDS_subjectsRaw', 'derivatives', 'freesurfer', ['sub-' sub_label], sub_label, 'mri', 'hippocampus_amygdala_lr.nii.gz'));
+    img.data=double(img.data);
+    thresh=[18, 54]; %amygdala
+    img.data(~ismember(img.data, thresh))=nan;
+    img.data(ismember(img.data, thresh))=1;
+    niftiWrite(img, fullfile(bids_path,'BIDS_subjectsRaw', 'derivatives', 'freesurfer', ['sub-' sub_label], sub_label, 'mri', 'amygdala_seg_binary.nii.gz'));
 
     %% Now lets create a script for MRIcroGL
 
@@ -26,15 +33,18 @@ for ii=1:length(my_subject_labels)
     % Add T1, and segmentation
     t1path=fullfile(bids_path, 'BIDS_subjectsRaw', 'derivatives', 'freesurfer', ['sub-' sub_label], ['sub-' sub_label '_ses-mri01_T1w_acpc.nii']);
     t1=['gl.loadimage("' t1path '")'];
-    segpath=fullfile(bids_path,'BIDS_subjectsRaw', 'derivatives', 'freesurfer', ['sub-' sub_label], sub_label, 'mri', 'hippocampus_amygdala_lr_seg.nii.gz');
-    segs=['gl.overlayload("' segpath '")' newline 'gl.colorname(1, "Viridis")' newline 'gl.minmax(1,0,2)' newline 'gl.opacity(1, 100)']; %where (1, ..) denotes the first overlay
+    segpath=fullfile(bids_path,'BIDS_subjectsRaw', 'derivatives', 'freesurfer', ['sub-' sub_label], sub_label, 'mri', 'hippocampus_seg_binary.nii.gz');
+    segs_hippocampus=['gl.overlayload("' segpath '")' newline 'gl.colorname(1, "Viridis")' newline 'gl.minmax(1,0,2)' newline 'gl.opacity(1, 100)']; %where (1, ..) denotes the first overlay
+
+    segpath=fullfile(bids_path,'BIDS_subjectsRaw', 'derivatives', 'freesurfer', ['sub-' sub_label], sub_label, 'mri', 'amygdala_seg_binary.nii.gz');
+    segs_amygdala=['gl.overlayload("' segpath '")' newline 'gl.colorname(2, "Viridis")' newline 'gl.minmax(1,0,2)' newline 'gl.opacity(2, 100)'];
 
     % Lets now write the electrode positions as nifti files so that we can
     % overlay
     load(fullfile(bids_path, 'sourcedata', ['sub-' sub_label], 'positionsBrinkman', 'electrodes_loc1.mat')); %load electrodes
     ieeg_position2reslicedImage(elecmatrix, t1path, fullfile(bids_path, 'BIDS_subjectsRaw', 'derivatives', 'freesurfer', ['sub-' sub_label]));
     elec_overlay=fullfile(bids_path, 'BIDS_subjectsRaw', 'derivatives', 'freesurfer', ['sub-' sub_label], 'Electrodes2Image_1.nii');
-    elec_call=['gl.overlayload("' elec_overlay '")' newline 'gl.colorname(2, "4hot")' newline 'gl.minmax(2, 0, 1)' newline 'gl.opacity(2, 100)'];
+    elec_call=['gl.overlayload("' elec_overlay '")' newline 'gl.colorname(3, "4hot")' newline 'gl.minmax(3, 0, 1)' newline 'gl.opacity(3, 100)'];
 
     % Mess with the colors
     colorbar=['gl.colorbarposition(2)' newline 'gl.colorbarsize(0.05)'];
@@ -49,7 +59,7 @@ for ii=1:length(my_subject_labels)
 
     savepic=['gl.savebmp("' outpath '")'];
 
-    MRIcroGL_call=[setup newline t1 newline segs newline elec_call newline colorbar newline mosaic newline savepic];
+    MRIcroGL_call=[setup newline t1 newline segs_hippocampus newline segs_amygdala newline elec_call newline colorbar newline mosaic newline savepic];
     clipboard('copy', MRIcroGL_call);
     pause
 
