@@ -16,7 +16,7 @@ function glass_brain_fig(subnum)
 close all;
 
 %Set track colors
-color={'#D00000', '#3185FC', '#FFBA08', '#5D2E8C', '#CBFF8C', '#46237A', '#8FE388', '#FF7B9C', '#1B998B', '#000000'};
+color={'#D00000', '#3185FC', '#FFBA08', '#5D2E8C', '#CBFF8C', '#46237A', '#8FE388', '#FF7B9C', '#1B998B', '#000000', '#40E0D0'};
 color=validatecolor(color, 'Multiple');
 
 %Set paths, get bids path and subject label
@@ -62,8 +62,9 @@ disp(['Created track render in ' num2str(toc) ' seconds'])
 %% Add ROI
 
 %Load ROIs and render them
-hippocampus=niftiRead(fullfile(bids_path,'BIDS_subjectsRaw','derivatives', 'freesurfer', ['sub-' sub_label], sub_label, 'mri', 'hippocampus_amygdala_lr_preproc.nii.gz' ));
-hip=renderROI(hippocampus, color(7, :), -32482); %-32482 is fs tag
+hippocampus=niftiRead(fullfile(bids_path,'BIDS_subjectsRaw','derivatives', 'freesurfer', ['sub-' sub_label], sub_label, 'mri', 'rhippocampus_amygdala_lr_preproc.nii' ));
+hip=renderROI(hippocampus, color(7, :), 53); 
+amg=renderROI(hippocampus, color(11, :), 54);
 
 r_AV=niftiRead(fullfile(bids_path, 'BIDS_subjectsRaw', 'derivatives', 'leaddbsinqsi', ['sub-' sub_label], 'rAV.nii'));
 av=renderROI(r_AV, color(8, :));
@@ -104,6 +105,7 @@ hip.FaceAlpha=.5;
 av.FaceAlpha=.5;
 ad.FaceAlpha=.5;
 am.FaceAlpha=.5;
+amg.FaceAlpha=.5;
 %cl.FaceAlpha=.5;
 %cm.FaceAlpha=.5;
 
@@ -112,19 +114,19 @@ custom_legend(Rtracks, color, sub_label, 1)
 
 %Rotate the brain in different views and save the output as a .svg file
 loc_view(90, 0)
-savename=fullfile(bids_path,'BIDS_subjectsRaw','derivatives', 'figs', ['sub-' sub_label], ['sub-' sub_label '_glassbrain_CMCL90_render_R.svg']);
+savename=fullfile(bids_path,'BIDS_subjectsRaw','derivatives', 'figs', ['sub-' sub_label], ['sub-' sub_label '_glassbrain_allseg_render90_R.svg']);
 saveas(gcf, savename)
 
 loc_view(180, 0)
-savename=fullfile(bids_path,'BIDS_subjectsRaw','derivatives', 'figs', ['sub-' sub_label], ['sub-' sub_label '_glassbrain_CMCL180_render_R.svg']);
+savename=fullfile(bids_path,'BIDS_subjectsRaw','derivatives', 'figs', ['sub-' sub_label], ['sub-' sub_label '_glassbrain_allseg_render180_R.svg']);
 saveas(gcf, savename)
 
 loc_view(270, 0)
-savename=fullfile(bids_path,'BIDS_subjectsRaw','derivatives', 'figs', ['sub-' sub_label], ['sub-' sub_label '_glassbrain_CMCL270_render_R.svg']);
+savename=fullfile(bids_path,'BIDS_subjectsRaw','derivatives', 'figs', ['sub-' sub_label], ['sub-' sub_label '_glassbrain_allseg_render270_R.svg']);
 saveas(gcf, savename)
 
 loc_view(0, 0)
-savename=fullfile(bids_path,'BIDS_subjectsRaw','derivatives', 'figs', ['sub-' sub_label], ['sub-' sub_label '_glassbrain_CMCL0_render_R.svg']);
+savename=fullfile(bids_path,'BIDS_subjectsRaw','derivatives', 'figs', ['sub-' sub_label], ['sub-' sub_label '_glassbrain_allseg_render360_R.svg']);
 saveas(gcf, savename)
 
 %% Now for the left side - repeat from above
@@ -150,8 +152,9 @@ disp(['Created track render in ' num2str(toc) ' seconds'])
 %% Add ROI
 
 %Plot ROI, now for left side
-hippocampus=niftiRead(fullfile(bids_path,'BIDS_subjectsRaw','derivatives', 'freesurfer', ['sub-' sub_label], sub_label, 'mri', 'hippocampus_amygdala_lr_preproc.nii.gz' ));
-hip=renderROI(hippocampus, color(7, :), -32676); %left fs tag
+hippocampus=niftiRead(fullfile(bids_path,'BIDS_subjectsRaw','derivatives', 'freesurfer', ['sub-' sub_label], sub_label, 'mri', 'rhippocampus_amygdala_lr_preproc.nii' ));
+hip=renderROI(hippocampus, color(7, :), 17); %left fs tag
+amg=renderROI(hippocampus, color(11, :), 18);
 
 l_AV=niftiRead(fullfile(bids_path, 'BIDS_subjectsRaw', 'derivatives', 'leaddbsinqsi', ['sub-' sub_label], 'lAV.nii'));
 av=renderROI(l_AV, color(8, :));
@@ -190,6 +193,7 @@ hip.FaceAlpha=.5;
 av.FaceAlpha=.5;
 ad.FaceAlpha=.5;
 am.FaceAlpha=.5;
+amg.FaceAlpha=.5;
 %cl.FaceAlpha=.5;
 %cm.FaceAlpha=.5;
 
@@ -197,19 +201,19 @@ custom_legend(Ltracks, color, sub_label, 1) %add custom legend
 
 %Rotate and save as .svg file in appropriate location
 loc_view(90, 0)
-savename=fullfile(bids_path,'BIDS_subjectsRaw','derivatives', 'figs', ['sub-' sub_label], ['sub-' sub_label '_glassbrain_CMCL90_notrkrender_L.svg']);
+savename=fullfile(bids_path,'BIDS_subjectsRaw','derivatives', 'figs', ['sub-' sub_label], ['sub-' sub_label '_glassbrain_allseg_render90_L.svg']);
 saveas(gcf, savename)
 
 loc_view(180, 0)
-savename=fullfile(bids_path,'BIDS_subjectsRaw','derivatives', 'figs', ['sub-' sub_label], ['sub-' sub_label '_glassbrain_CMCL180_notrkrender_L.svg']);
+savename=fullfile(bids_path,'BIDS_subjectsRaw','derivatives', 'figs', ['sub-' sub_label], ['sub-' sub_label '_glassbrain_allseg_render180_L.svg']);
 saveas(gcf, savename)
 
 loc_view(270, 0)
-savename=fullfile(bids_path,'BIDS_subjectsRaw','derivatives', 'figs', ['sub-' sub_label], ['sub-' sub_label '_glassbrain_CMCL270_notrkrender_L.svg']);
+savename=fullfile(bids_path,'BIDS_subjectsRaw','derivatives', 'figs', ['sub-' sub_label], ['sub-' sub_label '_glassbrain_allseg_render270_L.svg']);
 saveas(gcf, savename)
 
 loc_view(0, 0)
-savename=fullfile(bids_path,'BIDS_subjectsRaw','derivatives', 'figs', ['sub-' sub_label], ['sub-' sub_label '_glassbrain_CMCL0_notrkrender_L.svg']);
+savename=fullfile(bids_path,'BIDS_subjectsRaw','derivatives', 'figs', ['sub-' sub_label], ['sub-' sub_label '_glassbrain_allseg_render0_L.svg']);
 saveas(gcf, savename)
 
 end

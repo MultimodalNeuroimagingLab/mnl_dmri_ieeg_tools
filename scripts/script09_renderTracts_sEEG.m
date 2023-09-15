@@ -15,7 +15,7 @@ color={'#D00000', '#3185FC', '#FFBA08', '#5D2E8C', '#CBFF8C', '#46237A', '#8FE38
 color=validatecolor(color, 'multiple');
 setMyMatlabPaths;
 addpath(genpath(pwd));
-subnum=6;
+subnum=7;
 
 [sub_label,bids_path, ~, tracks] = limbic_subject_library(subnum);
 
@@ -37,6 +37,7 @@ end
 ni_dwi = niftiRead(dwi_file);
 fg_fromtrk = [];
 figure();
+set(gcf, 'Color', 'k');
 
 switch tag % -17 is L hippocampus; -53 is R hippocampus
     case 'L'
@@ -50,7 +51,7 @@ switch tag % -17 is L hippocampus; -53 is R hippocampus
         end
 
         try
-            hippocampus=niftiRead(fullfile(bids_path,'derivatives', 'freesurfer', ['sub-' sub_label], 'mri', 'rhippocampus_amygdala_lr_preproc.nii' ));
+            %hippocampus=niftiRead(fullfile(bids_path,'derivatives', 'freesurfer', ['sub-' sub_label], 'mri', 'rhippocampus_amygdala_lr_preproc.nii' ));
             hold on
             hip=renderROI(hippocampus, color(7, :), 17);
         catch
@@ -68,7 +69,7 @@ switch tag % -17 is L hippocampus; -53 is R hippocampus
         end
         
         try
-            hippocampus=niftiRead(fullfile(bids_path,'derivatives', 'freesurfer', ['sub-' sub_label], 'mri', 'rhippocampus_amygdala_lr_preproc.nii' ));
+            %hippocampus=niftiRead(fullfile(bids_path,'derivatives', 'freesurfer', ['sub-' sub_label], 'mri', 'rhippocampus_amygdala_lr_preproc.nii' ));
             hold on
             hip=renderROI(hippocampus, color(7, :), 53);
         catch
@@ -77,13 +78,20 @@ switch tag % -17 is L hippocampus; -53 is R hippocampus
 end
 
 %% Plot leads
-for ii=1:length(coords)
-    %render_dbs_lead(coords(ii).positions, .75, 46.6, 0)
-    addElectrode(coords(ii).positions, 'b', 0, 0.2)
-end
+% for ii=1:length(coords)
+%     render_dbs_lead(coords(ii).positions, .75, 46.6, 0)
+%     addElectrode(coords(ii).positions, 'b', 0, 0.2)
+% end
 
 try
     hip.FaceAlpha=.5;
 catch
     disp('No hip alpha to change')
 end
+
+elec=elStruct(16).positions(3, :);
+%fib=trk_concat(fg_fromtrk, elec, 'Fornix', 'Cingulum_Parolfactory');
+nonempty_fib=~cellfun('isempty', fib);
+fib=fib(nonempty_fib);
+loc_view(270, 0)
+dynamic_tractography(fib(1:20:end), elec, 10)

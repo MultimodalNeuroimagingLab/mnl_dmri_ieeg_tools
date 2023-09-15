@@ -4,20 +4,22 @@
 colors={'r', 'g', 'b', 'k', 'm'};
 all_data=cell(5, 1);
 
-for subject=1:5
-    
+for subject=1:7
+
     sub_label = my_subject_labels{subject};
     dsipath=fullfile(bids_path,'BIDS_subjectsRaw', 'derivatives','dsistudio',['sub-' sub_label], 'stats.mat');
     load(dsipath);
+
     sides=repelem({'l', 'r'}, [8 8]);
     
     all_data{subject}=struct(...
         'hippocampus', {cellfun(@(side, el) el.(['hippocampus_', side, '_dist']), sides, num2cell(el))}, ...
-        'AV', {cellfun(@(side, el) el.(['AV_', side, '_dist']), sides, num2cell(el))}, ...
-        'AD', {cellfun(@(side, el) el.(['AD_', side, '_dist']), sides, num2cell(el))}, ...
-        'AM', {cellfun(@(side, el) el.(['AM_', side, '_dist']), sides, num2cell(el))}, ...
+        'amygdala', {cellfun(@(side, el) el.(['amygdala_', side, '_dist']), sides, num2cell(el))}, ...
         'names', { {el.name} });
-    
+        %'AV', {cellfun(@(side, el) el.(['AV_', side, '_dist']), sides, num2cell(el))}, ...
+        %'AD', {cellfun(@(side, el) el.(['AD_', side, '_dist']), sides, num2cell(el))}, ...
+        %'AM', {cellfun(@(side, el) el.(['AM_', side, '_dist']), sides, num2cell(el))}, ...
+        
 %     all_data{subject}=struct(...
 %         'hippocampus', {cellfun(@(side, el) el.(['hippocampus_', side, '_dist']), sides, num2cell(el))}, ...
 %         'CM', {cellfun(@(side, el) el.(['CM_', side, '_dist']), sides, num2cell(el))}, ...
@@ -26,16 +28,16 @@ for subject=1:5
 end
 
 %roi={'hippocampus', 'CM', 'CL'};
-roi={'hippocampus', 'AD', 'AM', 'AV'};
+roi={'hippocampus', 'amygdala'};
 
 
-for ii=1:4
+for ii=1:2
 
-    color=repelem({'MSEL01219','MSEL01942', 'MSEL01957', 'MSEL02004', 'MSEL02375'}, [16 16 16 16 16]);
+    color=repelem({'MSEL01219', 'MSEL01542', 'MSEL01942','MSEL01957','MSEL02004', 'MSEL02375', 'MSEL02441'}, [16 16 16 16 16 16 16]);
     %color=repelem({ 'MSEL02004' }, [16]);
 
-    yval=[all_data{1}.(roi{ii}), all_data{2}.(roi{ii}), all_data{3}.(roi{ii}), all_data{4}.(roi{ii}), all_data{5}.(roi{ii})];
-    names=[all_data{1}.names, all_data{2}.names, all_data{3}.names, all_data{4}.names, all_data{5}.names];
+    yval=[all_data{1}.(roi{ii}), all_data{2}.(roi{ii}), all_data{3}.(roi{ii}), all_data{4}.(roi{ii}), all_data{5}.(roi{ii}), all_data{6}.(roi{ii}), all_data{7}.(roi{ii})];
+    names=[all_data{1}.names, all_data{2}.names, all_data{3}.names, all_data{4}.names, all_data{5}.names, all_data{6}.names, all_data{7}.names,];
     
 %     yval=[all_data{4}.(roi{ii})];
 %     names = all_data{4}.names;
@@ -55,7 +57,7 @@ for ii=1:4
 end
 
 outpath=fullfile(bids_path,'BIDS_subjectsRaw', 'derivatives','figs');
-outname='all_sub_dist2roi';
+outname='all_sub_dist2hipamyg';
 figure('Position',[100 100 800 550]);
 g.draw;
 g.export('file_name',outname,'export_path',outpath,'file_type','svg', 'height', 20.3, 'width', 25.6, 'units', 'inches');

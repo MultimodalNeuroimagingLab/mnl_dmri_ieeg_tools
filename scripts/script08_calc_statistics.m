@@ -21,14 +21,14 @@
 clear all;
 close all;
 
-subnum=1;
+subnum=5;
 [my_subject_labels,bids_path] = dmri_subject_list();
 sub_label = my_subject_labels{subnum};
 dsipath=fullfile(bids_path,'BIDS_subjectsRaw', 'derivatives','dsistudio',['sub-' sub_label]);
 [Ltracks, Rtracks]=getDSItracks(dsipath);
 [Ltracks, Rtracks]=gz_unzip(Ltracks, Rtracks);
-
-%Load DWI file:
+% 
+% Load DWI file:
 switch subnum
     case 2
         dwi_file = fullfile(bids_path, 'BIDS_subjectsRaw', 'derivatives', 'qsiprep', ['sub-' sub_label],'ses-compact3T01','dwi',['sub-' sub_label '_ses-compact3T01_acq-diadem_space-T1w_desc-preproc_dwi.nii.gz']);
@@ -40,19 +40,22 @@ switch subnum
         dwi_file = fullfile(bids_path, 'BIDS_subjectsRaw', 'derivatives', 'qsiprep', ['sub-' sub_label],'ses-mri01','dwi',['sub-' sub_label '_ses-mri01_rec-none_run-01_space-T1w_desc-preproc_dwi.nii.gz']);
 end
 
-% DWI data
+%DWI data
 ni_dwi = niftiRead(dwi_file);
 [fg_fromtrk]=create_trkstruct(ni_dwi, Rtracks);
 
 % Electrode positions
 electrode_tsv=readtable(fullfile(bids_path,'BIDS_subjectsRaw','derivatives', 'qsiprep', ['sub-' sub_label], ['sub-' sub_label '_ses-mri01_space-T1w_desc-qsiprep_electrodes.tsv']), 'FileType', 'text', 'Delimiter', '\t');
+%electrode_tsv.label=electrode_tsv.Var1; electrode_tsv.x=electrode_tsv.Var2; electrode_tsv.y=electrode_tsv.Var3; electrode_tsv.z=electrode_tsv.Var4;
 elecmatrix = [electrode_tsv.x electrode_tsv.y electrode_tsv.z];
 %% Custom ROI - load ROIs
 
 %Hippocampus segmentations
-hippocampus=fullfile(bids_path,'BIDS_subjectsRaw','derivatives', 'freesurfer', ['sub-' sub_label], sub_label, 'mri', 'hippocampus_amygdala_lr_preproc.nii.gz' );
-hippocampalsegR=-32482;
-hippocampalsegL=-32676;
+hippocampus=fullfile(bids_path,'BIDS_subjectsRaw','derivatives', 'freesurfer', ['sub-' sub_label], sub_label, 'mri', 'rhippocampus_amygdala_lr_preproc.nii' );
+hippocampalsegR=53;
+hippocampalsegL=17;
+amygdalasegR=54;
+amygdalasegL=18;
 
 %ANT segmentations for L ventral (AV), dorsal (AD), and medial (AM)
 l_AV=fullfile(bids_path, 'BIDS_subjectsRaw', 'derivatives', 'leaddbsinqsi', ['sub-' sub_label], 'lAV.nii');
@@ -76,6 +79,7 @@ for ii=1:length(electrodes)
     fg_fromtrk=strm_distance(fg_fromtrk, elecmatrix(ismember(electrode_tsv.label,electrodes{ii}), :));
     el(ii+8).trackstats = strm_angle(fg_fromtrk,elecmatrix(ismember(electrode_tsv.label,electrodes{ii}), :), 4);
     el(ii+8).hippocampus_r_dist=roi_distance(elecmatrix(ismember(electrode_tsv.label,electrodes{ii}), :), hippocampus, hippocampalsegR);
+    el(ii+8).amygdala_r_dist=roi_distance(elecmatrix(ismember(electrode_tsv.label,electrodes{ii}), :), hippocampus, amygdalasegR);
     el(ii+8).AV_r_dist=roi_distance(elecmatrix(ismember(electrode_tsv.label,electrodes{ii}), :), r_AV, 'Ventral ANT');
     el(ii+8).AD_r_dist=roi_distance(elecmatrix(ismember(electrode_tsv.label,electrodes{ii}), :), r_AD, 'Dorsal ANT');
     el(ii+8).AM_r_dist=roi_distance(elecmatrix(ismember(electrode_tsv.label,electrodes{ii}), :), r_AM, 'Medial ANT');
@@ -92,6 +96,7 @@ for ii=1:length(electrodes)
     fg_fromtrk=strm_distance(fg_fromtrk, elecmatrix(ismember(electrode_tsv.label,electrodes{ii}), :));
     el(ii).trackstats = strm_angle(fg_fromtrk,elecmatrix(ismember(electrode_tsv.label,electrodes{ii}), :), 4);
     el(ii).hippocampus_l_dist=roi_distance(elecmatrix(ismember(electrode_tsv.label,electrodes{ii}), :), hippocampus, hippocampalsegL);
+    el(ii).amygdala_l_dist=roi_distance(elecmatrix(ismember(electrode_tsv.label,electrodes{ii}), :), hippocampus, amygdalasegL);
     el(ii).AV_l_dist=roi_distance(elecmatrix(ismember(electrode_tsv.label,electrodes{ii}), :), l_AV, 'Ventral ANT');
     el(ii).AD_l_dist=roi_distance(elecmatrix(ismember(electrode_tsv.label,electrodes{ii}), :), l_AD, 'Dorsal ANT');
     el(ii).AM_l_dist=roi_distance(elecmatrix(ismember(electrode_tsv.label,electrodes{ii}), :), l_AM, 'Medial ANT');

@@ -51,8 +51,11 @@ if ifseg
     
     alltracks{ii+4}='Medial ANT Segmentation';
     L(ii+4)=plot(nan, nan, 'Color', colors(ii+4, :), 'LineWidth', 8);
+
+    alltracks{ii+5}='Amygdala Segmentation';
+    L(ii+5)=plot(nan, nan, 'Color', colors(ii+5, :), 'LineWidth', 8);
     
-    lgd=legend(L(1:ii+4), alltracks, 'Interpreter', 'none', 'FontSize', 18); %create legend
+    lgd=legend(L(1:ii+5), alltracks, 'Interpreter', 'none', 'FontSize', 18); %create legend
     %lgd=legend(L(1:ii+3), alltracks, 'Interpreter', 'none', 'FontSize', 18); %create legend
 else
     lgd=legend(L(1:ii), alltracks, 'Interpreter', 'none', 'FontSize', 18); 
