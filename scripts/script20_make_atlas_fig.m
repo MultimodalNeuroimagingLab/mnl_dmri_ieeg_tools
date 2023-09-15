@@ -24,8 +24,8 @@
 %Freesurfer version (may need to change i.e 7.2)
 freesurfer_vers='export FREESURFER_HOME=/Applications/freesurfer/7.4.1';
 
-path= '~/Desktop/Xi_test';
-average_template='MCSA_202_ADIR_122.nii';
+path= '~/Desktop/test';
+average_template='template.nii';
 
 %Create output directory
 outputdir = fullfile(path, 'freesurfer');
